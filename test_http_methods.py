@@ -37,3 +37,12 @@ print("------------------------------------------------------------")
 print("testing USER DELETE-method:")
 response = requests.delete(f"{BASE}{user}{user_id1}")
 print(response)
+
+
+#Ufullstendig test for meldinger
+print("TEST MESSAGE...")
+response = requests.post(BASE + "/api/messages", {"message": "hei"})
+print(response.json())
+print("------------------------------------------------------------")
+response = requests.get(BASE + "/api/messages")
+print(response.json())
