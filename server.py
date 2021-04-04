@@ -55,5 +55,30 @@ class Users(Resource):
 api.add_resource(User, "/api/user/<int:user_id>")  # adding User as a resource
 api.add_resource(Users, "/api/users")              # adding Users as a resource
 
+
+#only user in the room can get messages - get all 
+#Route:/api/room/<room-id>/messages
+class message(Resource):
+
+    def get(self):
+        return
+
+#Only users who have joined the room can get or addmessages.
+#Only registered user-id's should be permitted as <user-id
+#get all and add one
+#Route:/api/room/<room-id>/<user-id>/messages    
+class message2(Resource):
+
+    def get(self):
+        return
+    
+    def put(self):
+        return
+
+#api.add_resource(message, "/api/room/<room-id>/messages")
+#api.add_resource(Message2, "/api/room/<room-id>/<user-id>/messages")        
+
+
+
 if __name__ == "__main__":
     app.run(debug=True)  # change debug when when we're not testing anymore
