@@ -39,7 +39,7 @@ class User(Resource):  # user_id is already registered
 
 class Users(Resource):
 
-    def get(self):  # if not empty, get all users
+    def get(self):  # if not empty, get all users!
         if len(users) == 0:
             not_exist_abort(-1)
         return users
