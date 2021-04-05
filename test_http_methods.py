@@ -54,7 +54,7 @@ print(response.json())
 
 print("------------------------------------------------------------")
 print("testing ROOMS POST")
-response = requests.post(f"{BASE}{rooms}", {"roomname": "nyChat"})
+response = requests.post(f"{BASE}{rooms}", {"roomname": "nyChat", "creator": 1})
 print(response.json())
 print("testing ROOMS POST 2")
 response = requests.post(f"{BASE}{rooms}", {"roomname": "chatNr2"})
@@ -88,7 +88,7 @@ print(response.json())
 
 print("------------------------------------------------------------")
 print("testing MEMBERS POST to room 1")
-response = requests.post(f"{BASE}{room}{2}/{1}")
+response = requests.post(f"{BASE}{room}{1}/{1}")
 print(response.json())
 
 print("------------------------------------------------------------")

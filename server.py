@@ -11,8 +11,8 @@ users_post.add_argument('password', type=str, required=True, help="password is r
 
 # up to us if it's going to be an array or database in final version (SQL-alchemy?)
 users = {}
-global usr_id  # temporary solution for user ID's when registering users
-usr_id = 0
+global user_counter  # temporary solution for user ID's when registering users
+user_counter = 0
 
 
 def user_not_exist_abort(user_id):  # abort if trying to use non-existing user_id
@@ -42,14 +42,14 @@ class Users(Resource):
     def get(self):  # if not empty, get all users!
         if len(users) == 0:
             user_not_exist_abort(-1)
-        return users    # I don't see how this method can guarantee there's a registered user calling it.
+        return users  # I don't see how this method can guarantee there's a registered user calling it.
 
     def post(self):  # register a user
-        global usr_id
-        usr_id += 1  # incrementing global variable each time user is registered
+        global user_counter
+        user_counter += 1  # incrementing global variable each time user is registered
         args = users_post.parse_args()
-        users[usr_id] = args
-        return usr_id, 201  # returning the user ID
+        users[user_counter] = args
+        return user_counter, 201  # returning the user ID
 
 
 api.add_resource(User, "/api/user/<int:user_id>")  # adding User as a resource
@@ -89,6 +89,7 @@ roomsCounter = 0
 
 rooms_post = reqparse.RequestParser()
 rooms_post.add_argument('roomname', type=str, required=True, help='A name for your chat room')
+rooms_post.add_argument('creator', type=int, required=True, help='The user id of the creator is required')
 rooms_post.add_argument('password', type=str, help='Optional password if you dont want just anyone to join')
 
 
@@ -103,7 +104,7 @@ class Room(Resource):
         room_abort_not_exist(room_id)
         return rooms[room_id], 200
 
-    def delete(self, room_id):
+    def delete(self, room_id):  # check if creator is the only member in members before deleting
         room_abort_not_exist(room_id)
         del rooms[room_id]
         return "Room deleted", 204
@@ -117,60 +118,61 @@ class Rooms(Resource):
         return rooms
 
     def post(self):  # create a new chatroom
-        global roomsCounter
-        roomsCounter += 1
         args = rooms_post.parse_args()
-        rooms[roomsCounter] = args
-        return roomsCounter, 201
+        if "creator" in args:
+            user_not_exist_abort(args['creator'])
+            global roomsCounter
+            roomsCounter += 1
+            rooms[roomsCounter] = args
+            return roomsCounter, 201
 
 
 api.add_resource(Room, "/api/room/<int:room_id>")
 api.add_resource(Rooms, "/api/rooms")
-
-
-def check_room(room_id):
-    if room_id not in rooms:
-        abort(404, message="Room not found")
-
 
 members = {}
 global member_count
 member_count = 0
 
 
+def member_abort_does_exist(room_id, user_id):  # abort if the user is already added to the room
+    if user_id in members:
+        abort(409, message="User already in the chat or another chat room")
+
+
 class Member(Resource):
     def get(self, room_id, user_id):
-        check_room(room_id)
+        room_abort_not_exist(room_id)
         user_not_exist_abort(user_id)
         return members[user_id], 200
 
     def delete(self, room_id, user_id):
-        check_room(room_id)
+        room_abort_not_exist(room_id)
         user_not_exist_abort(user_id)
         del members[user_id]
         return "member kicked out", 204
 
     def post(self, room_id, user_id):
-        check_room(room_id)
+        room_abort_not_exist(room_id)
         user_not_exist_abort(user_id)
-        if user_id not in members:
-            global member_count
-            member_count += 1
-            members[user_id] = {"room_id": room_id, "user_id": user_id}
-            return "User added as member", 201
-        else:
-            return "User already in the chat or another chat room", 404
+        member_abort_does_exist(room_id, user_id)
+        global member_count
+        member_count += 1
+        members[user_id] = {"room_id": room_id, "user_id": user_id}
+        return "User added as member", 201
+
     # maybe ta med put?
 
 
 class Members(Resource):
     def get(self, room_id):
-        if len(members) == 0:
+        room_abort_not_exist(room_id)
+        if len(members) == 0:        # maybe consider to make it impossible to have a room without members?
             user_not_exist_abort(-1)
         return members
 
 
-api.add_resource(Members, "/api/room/<int:room_id>/members")
+api.add_resource(Members, "/api/room/<int:room_id>/members")  #
 api.add_resource(Member, "/api/room/<int:room_id>/<int:user_id>")
 
 if __name__ == "__main__":
