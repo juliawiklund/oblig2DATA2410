@@ -15,12 +15,12 @@ global usr_id  # temporary solution for user ID's when registering users
 usr_id = 0
 
 
-def not_exist_abort(user_id):  # abort if trying to use non-existing user_id
+def user_not_exist_abort(user_id):  # abort if trying to use non-existing user_id
     if user_id not in users:
         abort(404, message="User not found")
 
 
-def does_exist_abort(user_id):  # abort if overwriting existing user_id
+def user_does_exist_abort(user_id):  # abort if overwriting existing user_id
     if user_id in users:
         abort(409, message="User already exists")
 
@@ -28,11 +28,11 @@ def does_exist_abort(user_id):  # abort if overwriting existing user_id
 class User(Resource):  # user_id is already registered
 
     def get(self, user_id):
-        not_exist_abort(user_id)
+        user_not_exist_abort(user_id)
         return users[user_id], 200
 
     def delete(self, user_id):
-        not_exist_abort(user_id)
+        user_not_exist_abort(user_id)
         del users[user_id]
         return '', 204
 
@@ -41,8 +41,8 @@ class Users(Resource):
 
     def get(self):  # if not empty, get all users!
         if len(users) == 0:
-            not_exist_abort(-1)
-        return users
+            user_not_exist_abort(-1)
+        return users    # I don't see how this method can guarantee there's a registered user calling it.
 
     def post(self):  # register a user
         global usr_id
@@ -64,7 +64,7 @@ class message(Resource):
         return
 
 
-# Only users who have joined the room can get or addmessages.
+# Only users who have joined the room can get or add messages.
 # Only registered user-id's should be permitted as <user-id
 # get all and add one
 # Route:/api/room/<room-id>/<user-id>/messages
@@ -141,18 +141,18 @@ member_count = 0
 class Member(Resource):
     def get(self, room_id, user_id):
         check_room(room_id)
-        not_exist_abort(user_id)
+        user_not_exist_abort(user_id)
         return members[user_id], 200
 
     def delete(self, room_id, user_id):
         check_room(room_id)
-        not_exist_abort(user_id)
+        user_not_exist_abort(user_id)
         del members[user_id]
         return "member kicked out", 204
 
     def post(self, room_id, user_id):
         check_room(room_id)
-        not_exist_abort(user_id)
+        user_not_exist_abort(user_id)
         if user_id not in members:
             global member_count
             member_count += 1
@@ -166,7 +166,7 @@ class Member(Resource):
 class Members(Resource):
     def get(self, room_id):
         if len(members) == 0:
-            not_exist_abort(-1)
+            user_not_exist_abort(-1)
         return members
 
 
