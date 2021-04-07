@@ -43,17 +43,6 @@ print(response.json())
 # print(response)
 
 
-#Ufullstendig test for meldinger
-# print("TEST MESSAGE...")
-# response = requests.post(BASE + "/api/messages", {"message": "hei"})
-# print(response.json())
-# print("------------------------------------------------------------")
-# response = requests.get(BASE + "/api/messages")
-# print(response.json())
-
-
-# TESTER ROOMS
-
 print("------------------------------------------------------------")
 print("testing ROOMS POST")
 response = requests.post(f"{BASE}{rooms}", {"roomname": "nyChat", "creator": 1})
