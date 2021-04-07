@@ -64,8 +64,7 @@ message_post.add_argument('message', type=str, required=True, help='Add a messag
 
 
 # only user in the room can get messages - get all
-# Route:/api/room/<room-id>/messages
-class Message(Resource):
+class Message(Resource):        # Route:/api/room/<room-id>/messages
 
     def get(self, room_id):
         # Skal returnere alle meldinger fra rommet
@@ -76,8 +75,8 @@ class Message(Resource):
 # Only users who have joined the room can get or addmessages.
 # Only registered user-id's should be permitted as <user-id>
 # get all and add one
-# Route:/api/room/<room-id>/<user-id>/messages
-class Message2(Resource):
+
+class Message2(Resource):  # Route:/api/room/<room-id>/<user-id>/messages
 
     def get(self, room_id, user_id):
         room_abort_not_exist(room_id)
@@ -88,13 +87,7 @@ class Message2(Resource):
         if members[user_id]['room_id'] == room_id and members[user_id]['user_id'] == user_id:
             return messages, 200
 
-        # Må hente ut user_id fra members
-
-        # if user_id in members: # må aksesere user_id i members
-        #     return messages, 200
         return abort(404, message="You do not have access to the messages")
-
-        # return messages returnere alt som er postet
 
     def post(self, room_id, user_id):
         # sjekk om det er en bruker i et room som poster
@@ -136,7 +129,7 @@ class Room(Resource):
         return "Room deleted", 204
 
 
-class Rooms(Resource):
+class Rooms(Resource):  # "/api/rooms"
 
     def get(self):  # get all chatrooms
         if len(rooms) == 0:
@@ -166,7 +159,7 @@ def member_abort_does_exist(room_id, user_id):  # abort if the user is already a
         abort(409, message="User already in the chat or another chat room")
 
 
-class Member(Resource):
+class Member(Resource):  # /api/room/<room-id>/users
     def get(self, room_id, user_id):
         room_abort_not_exist(room_id)
         user_not_exist_abort(user_id)
