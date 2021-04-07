@@ -9,8 +9,8 @@ json_user1 = {"username": "alex", "password": "password123"}
 json_user2 = {"username": "josh", "password": "password456"}
 rooms = "/api/rooms"
 room = "/api/room/"
-msgPack = {"user_id":1,"username":"uzi", "message":"heisann"}
-msgPack2 = {"user_id":2,"username":"josh", "message":"heihei"}
+msgPack = {"user_id": 1, "username": "uzi", "message": "heisann"}
+msgPack2 = {"user_id": 2, "username": "josh", "message": "heihei"}
 
 # Testing Class USERS
 
@@ -111,16 +111,17 @@ print("testing to get all messages from a room")
 response = requests.get(f"{BASE}{room}/{1}/messages")
 print(response.json())
 print("------------------------------------------------------------")
-print("message to users who joined a room")
-response = requests.get(f"{BASE}{room}{1}/{1}/messages")
-print(response.json())
-print("testing to get message from a user who isnt in the room: fail")
-response = requests.get(f"{BASE}{room}{1}/{7}/messages")
-print(response.json())
-print("------------------------------------------------------------")
 print("testing POST message")
 response = requests.post(f"{BASE}{room}{1}/{1}/messages", msgPack)
 print(response.json())
+print("------------------------------------------------------------")
+print("testing GET message (to users who joined a room)")
+response = requests.get(f"{BASE}{room}{1}/{1}/messages")
+print(response.json())
+print("testing GET message (from a user who isnt in the room: fail)")
+response = requests.get(f"{BASE}{room}{1}/{7}/messages")
+print(response.json())
+
 
 
 

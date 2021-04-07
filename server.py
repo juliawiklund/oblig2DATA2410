@@ -55,7 +55,6 @@ class Users(Resource):
 api.add_resource(User, "/api/user/<int:user_id>")  # adding User as a resource
 api.add_resource(Users, "/api/users")  # adding Users as a resource
 
-
 messages = {}
 
 message_post = reqparse.RequestParser()
@@ -63,18 +62,16 @@ message_post.add_argument('user_id', type=int, required=True, help='Enter your u
 message_post.add_argument('username', type=str, required=True, help='Enter your username')
 message_post.add_argument('message', type=str, required=True, help='Add a message...')
 
+
 # only user in the room can get messages - get all
 # Route:/api/room/<room-id>/messages
 class Message(Resource):
 
     def get(self, room_id):
-      #Skal returnere alle meldinger fra rommet
+        # Skal returnere alle meldinger fra rommet
         room_abort_not_exist(room_id)
         return "melding fra rommet", 200
-      
-        
-       
-       
+
 
 # Only users who have joined the room can get or addmessages.
 # Only registered user-id's should be permitted as <user-id>
@@ -84,28 +81,23 @@ class Message2(Resource):
 
     def get(self, room_id, user_id):
         room_abort_not_exist(room_id)
-        #user_not_exist_abort(user_id)
+        user_not_exist_abort(user_id)
 
-        #sjekk om user er med medlem av rommet, hvis ja returner alle mld
-             
-        #Må hente ut user_id fra members
+        # sjekk om user er med medlem av rommet, hvis ja returner alle mld
 
-       
-        for m in members:
-            if room_id in members:
-                return messages, 200
-            
+        if members[user_id]['room_id'] == room_id and members[user_id]['user_id'] == user_id:
+            return messages, 200
+
+        # Må hente ut user_id fra members
 
         # if user_id in members: # må aksesere user_id i members
         #     return messages, 200
         return abort(404, message="You do not have access to the messages")
 
-        #return messages returnere alt som er postet
-
-       
+        # return messages returnere alt som er postet
 
     def post(self, room_id, user_id):
-        #sjekk om det er en bruker i et room som poster
+        # sjekk om det er en bruker i et room som poster
         room_abort_not_exist(room_id)
         args = message_post.parse_args()
         messages[user_id] = args
@@ -113,10 +105,7 @@ class Message2(Resource):
 
 
 api.add_resource(Message, "/api/room/<int:room_id>/messages")
-api.add_resource(Message2, "/api/room/<int:room_id>/<user_id>/messages")
-
-
-
+api.add_resource(Message2, "/api/room/<int:room_id>/<int:user_id>/messages")
 
 # ####################### ROOMS ################################
 
@@ -204,7 +193,7 @@ class Member(Resource):
 class Members(Resource):
     def get(self, room_id):
         room_abort_not_exist(room_id)
-        if len(members) == 0:        # maybe consider to make it impossible to have a room without members?
+        if len(members) == 0:  # maybe consider to make it impossible to have a room without members?
             user_not_exist_abort(-1)
         return members
 
