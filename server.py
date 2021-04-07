@@ -63,8 +63,7 @@ message_post.add_argument('username', type=str, required=True, help='Enter your 
 message_post.add_argument('message', type=str, required=True, help='Add a message...')
 
 
-# only user in the room can get messages - get all
-class Message(Resource):        # Route:/api/room/<room-id>/messages
+class Message(Resource):        
 
     def get(self, room_id):
         # Skal returnere alle meldinger fra rommet
@@ -72,17 +71,11 @@ class Message(Resource):        # Route:/api/room/<room-id>/messages
         return "melding fra rommet", 200
 
 
-# Only users who have joined the room can get or addmessages.
-# Only registered user-id's should be permitted as <user-id>
-# get all and add one
-
-class Message2(Resource):  # Route:/api/room/<room-id>/<user-id>/messages
+class Message2(Resource):  
 
     def get(self, room_id, user_id):
         room_abort_not_exist(room_id)
         user_not_exist_abort(user_id)
-
-        # sjekk om user er med medlem av rommet, hvis ja returner alle mld
 
         if members[user_id]['room_id'] == room_id and members[user_id]['user_id'] == user_id:
             return messages, 200
