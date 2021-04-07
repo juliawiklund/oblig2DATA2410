@@ -101,3 +101,22 @@ print("testing MEMBERS GET ")
 response = requests.get(f"{BASE}{room}{1}/members")
 print(response.json())
 
+# TEST FOR MESSAGE
+
+print("------------------------------------------------------------")
+print("TEST MESSAGE...")
+print("testing to get all messages from a room")
+response = requests.get(f"{BASE}{room}/{1}/messages")
+print(response.json())
+print("------------------------------------------------------------")
+print("message to users who joined a room")
+response = requests.get(f"{BASE}{room}{1}/{1}/messages")
+print(response.json())
+print("testing to get message from a user who isnt in the room: fail")
+response = requests.get(f"{BASE}{room}{1}/{7}/messages")
+print(response.json())
+print("------------------------------------------------------------")
+print("testing POST message")
+response = requests.post(f"{BASE}{room}{1}/{1}/messages", msgPack)
+print(response.json())
+

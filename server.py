@@ -89,8 +89,8 @@ class Message2(Resource):
              
         #Må hente ut user_id fra members
         for m in members:
-            if m['room_id'] == room_id:
-                return messages
+            print(m)
+            
 
         # if user_id in members: # må aksesere user_id i members
         #     return messages, 200
