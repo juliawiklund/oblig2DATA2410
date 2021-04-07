@@ -9,6 +9,8 @@ json_user1 = {"username": "alex", "password": "password123"}
 json_user2 = {"username": "josh", "password": "password456"}
 rooms = "/api/rooms"
 room = "/api/room/"
+msgPack = {"user_id":1,"username":"uzi", "message":"heisann"}
+msgPack2 = {"user_id":2,"username":"josh", "message":"heihei"}
 
 # Testing Class USERS
 
@@ -119,4 +121,6 @@ print("------------------------------------------------------------")
 print("testing POST message")
 response = requests.post(f"{BASE}{room}{1}/{1}/messages", msgPack)
 print(response.json())
+
+
 

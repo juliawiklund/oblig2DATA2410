@@ -71,6 +71,7 @@ class Message(Resource):
       #Skal returnere alle meldinger fra rommet
         room_abort_not_exist(room_id)
         return "melding fra rommet", 200
+      
         
        
        
@@ -83,13 +84,16 @@ class Message2(Resource):
 
     def get(self, room_id, user_id):
         room_abort_not_exist(room_id)
-        #not_exist_abort(user_id)
+        #user_not_exist_abort(user_id)
 
         #sjekk om user er med medlem av rommet, hvis ja returner alle mld
              
         #Må hente ut user_id fra members
+
+       
         for m in members:
-            print(m)
+            if room_id in members:
+                return messages, 200
             
 
         # if user_id in members: # må aksesere user_id i members
