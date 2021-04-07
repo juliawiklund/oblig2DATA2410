@@ -56,29 +56,62 @@ api.add_resource(User, "/api/user/<int:user_id>")  # adding User as a resource
 api.add_resource(Users, "/api/users")  # adding Users as a resource
 
 
+messages = {}
+
+message_post = reqparse.RequestParser()
+message_post.add_argument('user_id', type=int, required=True, help='Enter your userid')
+message_post.add_argument('username', type=str, required=True, help='Enter your username')
+message_post.add_argument('message', type=str, required=True, help='Add a message...')
+
 # only user in the room can get messages - get all
 # Route:/api/room/<room-id>/messages
-class message(Resource):
+class Message(Resource):
 
-    def get(self):
-        return
+    def get(self, room_id):
+      #Skal returnere alle meldinger fra rommet
+        room_abort_not_exist(room_id)
+        return "melding fra rommet", 200
+        
+       
+       
 
-
-# Only users who have joined the room can get or add messages.
-# Only registered user-id's should be permitted as <user-id
+# Only users who have joined the room can get or addmessages.
+# Only registered user-id's should be permitted as <user-id>
 # get all and add one
 # Route:/api/room/<room-id>/<user-id>/messages
-class message2(Resource):
+class Message2(Resource):
 
-    def get(self):
-        return
+    def get(self, room_id, user_id):
+        room_abort_not_exist(room_id)
+        #not_exist_abort(user_id)
 
-    def put(self):
-        return
+        #sjekk om user er med medlem av rommet, hvis ja returner alle mld
+             
+        #Må hente ut user_id fra members
+        for m in members:
+            if m['room_id'] == room_id:
+                return messages
+
+        # if user_id in members: # må aksesere user_id i members
+        #     return messages, 200
+        return abort(404, message="You do not have access to the messages")
+
+        #return messages returnere alt som er postet
+
+       
+
+    def post(self, room_id, user_id):
+        #sjekk om det er en bruker i et room som poster
+        room_abort_not_exist(room_id)
+        args = message_post.parse_args()
+        messages[user_id] = args
+        return messages[user_id], 200
 
 
-# api.add_resource(message, "/api/room/<room-id>/messages")
-# api.add_resource(Message2, "/api/room/<room-id>/<user-id>/messages")
+api.add_resource(Message, "/api/room/<int:room_id>/messages")
+api.add_resource(Message2, "/api/room/<int:room_id>/<user_id>/messages")
+
+
 
 
 # ####################### ROOMS ################################
