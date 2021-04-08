@@ -6,7 +6,7 @@ import requests
 
 def julia():
     pairs = [
-        (r"username", "julia"),
+        (r"username", ["julia"]),
         (r"alias", ["jullz", "wiklund", "j****w"]),
         (r"password", ["julia123", "wiklund456"]),
         (r"roomname", ["oblig2chatt", "olafiaklinikken"]),
@@ -43,41 +43,38 @@ def alex():
 def huzeyfe():
     pairs = [
         (r"username", "Huzeyfe"),
-        (r"alias", ["uzi", "huzi", "theuzi123", "phoenix", "BigBoy2k"]), 
-        (r"password", ["ilovevalorant123", "val_uzi2021", "mypass_secret"]), 
-        (r"roomname", ["Time for Val!", "Gaming room", "diskusjons toalett"]), 
-        (r"start conversation", ["Welcome to the gaming universe guys:)", 
+        (r"alias", ["uzi", "huzi", "theuzi123", "phoenix", "BigBoy2k"]),
+        (r"password", ["ilovevalorant123", "val_uzi2021", "mypass_secret"]),
+        (r"roomname", ["Time for Val!", "Gaming room", "diskusjons toalett"]),
+        (r"start conversation", ["Welcome to the gaming universe guys:)",
                                  "Heyyy bros!, long time no see. How are you?",
-                                 "Bro im really sad, some one wanna talk?"]), 
+                                 "Bro im really sad, some one wanna talk?"]),
         (r"bye", ["See you guys later",
-                  "yeah was nice to talk with you guys, hope we can do it again next week", 
-                  "Im out boyyyys, have to meet my girlfriend", 
+                  "yeah was nice to talk with you guys, hope we can do it again next week",
+                  "Im out boyyyys, have to meet my girlfriend",
                   "I really appreciate the conversation, goodbye",
                   "Bye guys, we'll talk later",
-                  "Goodbye!"]), 
-        (r"(.*)food(.*)", ["Bro cant you see that I love food? Like look at me dude!", 
-                           "I can really eat everything, it's starting to get a big problem", 
-                           "I'm not a big fan of proper food, but I can eat snacks anytime", 
-        "Food?! fuck now i'm just thinking about chicken tikka masala, chicken curry, chicken tandori, chicken biryani aaaaarghh",
-        "I do not eat anything but sweets",
-        "I have anorexia, can we talk about something else?"]),
-        (r"(.*)sport(.*)|(.*)sports(.*)", ["Bro I watch sports all the time!", 
+                  "Goodbye!"]),
+        (r"(.*)food(.*)", ["Bro cant you see that I love food? Like look at me dude!",
+                           "I can really eat everything, it's starting to get a big problem",
+                           "I'm not a big fan of proper food, but I can eat snacks anytime",
+                           "Food?! fuck now i'm just thinking about chicken tikka masala, chicken curry, chicken tandori, chicken biryani aaaaarghh",
+                           "I do not eat anything but sweets",
+                           "I have anorexia, can we talk about something else?"]),
+        (r"(.*)sport(.*)|(.*)sports(.*)", ["Bro I watch sports all the time!",
                                            "Sports are perhaps some of the most boring things you can do",
                                            "Bro I love sport, especially boxing",
-                                           "Hahaha sport? I can 't even get out of bed, you're funny"]), 
+                                           "Hahaha sport? I can 't even get out of bed, you're funny"]),
         (r"(.*)movies(.*)|(.*)movie(.*)", ["I mean everyone should have at least one movie night a week",
                                            "Yeeah I am obsessed with star wars, i know absolutely everything about it:)",
                                            "To be honest I do not like movies, I prefer series",
-                                           "I'm not actually watching movies guys:/", 
-                                           "Ouf I love documentaries, maybe that's why everyone calls me a nerd..."]), 
-         #(r"(.*)feeling(.*)|(.*)feelings(.*)|(.*)feel(.*)", [])
-        
+                                           "I'm not actually watching movies guys:/",
+                                           "Ouf I love documentaries, maybe that's why everyone calls me a nerd..."]),
+        # (r"(.*)feeling(.*)|(.*)feelings(.*)|(.*)feel(.*)", [])
+
     ]
     huzeyfe_bot = Chat(pairs, reflections)
     return huzeyfe_bot
-
-
-
 
 
 def josh():
@@ -121,6 +118,15 @@ def create_chatroom(chatbot, user_id):  # /api/rooms
     return room_id
 
 
+def get_all_chatrooms(user_id):  # /api/rooms
+    user_json = {"user_id": user_id}
+    print("------------------------------------------------------------")
+    print("getting all chat rooms - ROOMS GET-method:")
+    response = requests.get(f"{BASE}{rooms}", user_json)
+    all_chatrooms = response.json()
+    format_and_print_room(all_chatrooms)
+
+
 def delete_chatroom(room_id):  # /api/room/<int:room_id>
     print("------------------------------------------------------------")
     print("creator of chat-room closing it - ROOMS DELETE-method:")
@@ -154,14 +160,20 @@ def start_conversation(chatbot, user_id, room_id):  # /api/room/<int:room_id>/<i
 def recieve_messages(user_id, room_id):  # /api/room/<int:room_id>/<int:user_id>/messages
     response = requests.get(f"{BASE}{room}{room_id}/{user_id}/messages")
     msg = response.json()
-    #    for m in msg:
-    #        if m != msg[user_id]:
-    #            format_and_print_msg(m)
-    return msg
+    for m in msg['messages']:
+        if m is not None and m['user_id'] != user_id:
+            format_and_print_msg(m)
+            return m
 
 
 def format_and_print_msg(msg):
     print(f"{msg['username']} says: {msg['message']} ")
+
+
+def format_and_print_room(chatrooms):
+    print("available rooms are: ")
+    for r in chatrooms['rooms']:
+        print(r['roomname'])
 
 
 def leave_chatroom(user_id, room_id):  # /api/room/<int:room_id>/<int:user_id>
@@ -184,21 +196,23 @@ def client_connected_to_server(chatbot):
         msg = start_conversation(chatbot, user_id, room_id)
         format_and_print_msg(msg)
         while in_chatroom:
-            #    msg = recieve_messages(user_id, room_id)
-            if msg['message'] == "bye":
-                in_chatroom = leave_chatroom(user_id, room_id)
+            msg = recieve_messages(user_id, room_id)
+            get_all_chatrooms(user_id)
+
+
+            # if msg['message'] == "bye":
+            #     in_chatroom = leave_chatroom(user_id, room_id)
             in_chatroom = False
 
         connected = False
 
 
-bot = julia()  # starting chatbot
-client_connected_to_server(bot)
-
+# bot = julia()  # starting chatbot
+# client_connected_to_server(bot)
 
 bot2 = alex()
 client_connected_to_server(bot2)
 
-bot3 = huzeyfe()
-client_connected_to_server(bot3)
+# bot3 = huzeyfe()
+# client_connected_to_server(bot3)
 # må sende med user_id og room_id, maybe i client_connected_to_server(bot, room_id_user_id
