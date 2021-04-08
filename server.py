@@ -62,6 +62,10 @@ message_post.add_argument('user_id', type=int, required=True, help='Enter your u
 message_post.add_argument('username', type=str, required=True, help='Enter your username')
 message_post.add_argument('message', type=str, required=True, help='Add a message...')
 
+def abort_if_not_member(room_id, user_id):
+    if members[user_id]['room_id'] != room_id and members[user_id]['user_id'] != user_id:
+        return abort(404, message="You do not have access to the messages")
+
 
 class Message(Resource):
 
@@ -76,18 +80,14 @@ class Message2(Resource):
     def get(self, room_id, user_id):
         room_abort_not_exist(room_id)
         user_not_exist_abort(user_id)
+        abort_if_not_member(room_id, user_id)      
+        return messages, 200
 
-        if members[user_id]['room_id'] == room_id and members[user_id]['user_id'] == user_id:
-            return messages, 200
-
-        # for m in members:
-        #    if m.user_id == user_id:
-
-        return abort(404, message="You do not have access to the messages")
-
+      
     def post(self, room_id, user_id):
-        # sjekk om det er en bruker i et room som poster
         room_abort_not_exist(room_id)
+        user_not_exist_abort(user_id)
+        abort_if_not_member(room_id, user_id)
         args = message_post.parse_args()
         messages[user_id] = args
         return messages[user_id], 200
