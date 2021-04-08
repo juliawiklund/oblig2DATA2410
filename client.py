@@ -41,7 +41,43 @@ def alex():
 
 
 def huzeyfe():
-    pass
+    pairs = [
+        (r"username", "Huzeyfe"),
+        (r"alias", ["uzi", "huzi", "theuzi123", "phoenix", "BigBoy2k"]), 
+        (r"password", ["ilovevalorant123", "val_uzi2021", "mypass_secret"]), 
+        (r"roomname", ["Time for Val!", "Gaming room", "diskusjons toalett"]), 
+        (r"start conversation", ["Welcome to the gaming universe guys:)", 
+                                 "Heyyy bros!, long time no see. How are you?",
+                                 "Bro im really sad, some one wanna talk?"]), 
+        (r"bye", ["See you guys later",
+                  "yeah was nice to talk with you guys, hope we can do it again next week", 
+                  "Im out boyyyys, have to meet my girlfriend", 
+                  "I really appreciate the conversation, goodbye",
+                  "Bye guys, we'll talk later",
+                  "Goodbye!"]), 
+        (r"(.*)food(.*)", ["Bro cant you see that I love food? Like look at me dude!", 
+                           "I can really eat everything, it's starting to get a big problem", 
+                           "I'm not a big fan of proper food, but I can eat snacks anytime", 
+        "Food?! fuck now i'm just thinking about chicken tikka masala, chicken curry, chicken tandori, chicken biryani aaaaarghh",
+        "I do not eat anything but sweets",
+        "I have anorexia, can we talk about something else?"]),
+        (r"(.*)sport(.*)|(.*)sports(.*)", ["Bro I watch sports all the time!", 
+                                           "Sports are perhaps some of the most boring things you can do",
+                                           "Bro I love sport, especially boxing",
+                                           "Hahaha sport? I can 't even get out of bed, you're funny"]), 
+        (r"(.*)movies(.*)|(.*)movie(.*)", ["I mean everyone should have at least one movie night a week",
+                                           "Yeeah I am obsessed with star wars, i know absolutely everything about it:)",
+                                           "To be honest I do not like movies, I prefer series",
+                                           "I'm not actually watching movies guys:/", 
+                                           "Ouf I love documentaries, maybe that's why everyone calls me a nerd..."]), 
+         #(r"(.*)feeling(.*)|(.*)feelings(.*)|(.*)feel(.*)", [])
+        
+    ]
+    huzeyfe_bot = Chat(pairs, reflections)
+    return huzeyfe_bot
+
+
+
 
 
 def josh():
@@ -162,4 +198,7 @@ client_connected_to_server(bot)
 
 bot2 = alex()
 client_connected_to_server(bot2)
+
+bot3 = huzeyfe()
+client_connected_to_server(bot3)
 # må sende med user_id og room_id, maybe i client_connected_to_server(bot, room_id_user_id
