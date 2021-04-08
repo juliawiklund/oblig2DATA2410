@@ -150,12 +150,9 @@ global member_count
 member_count = 0
 
 
-# ###########WHICH ONE DO WE USE???
-
 def member_abort_does_exist(user_id):  # abort if the user is already added to the room
     if user_id in members:
         abort(409, message="User already in the chat or another chat room")
-
 
 
 member_post = reqparse.RequestParser()
