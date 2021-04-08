@@ -19,7 +19,25 @@ def julia():
 
 
 def alex():
-    pass
+    pairs = [
+        (r"username", "alex"),
+        (r"alias", ["alexxx", "ale", "alez"]),
+        (r"password", ["ale123", "hvordanlagermanpassord123"]),
+        (r"roomname", ["datanett gc", "the gang", "cabbage"]),
+        (r"start conversation", ["Hiii girliesss, hope everybody is having a good day, welcome to the chat",
+                                 "Wuddup errybody, i made this soooo lets talk",
+                                 "Hello and welcome to the gc :) hope we'll have a nice convo"],),
+        (r"bye", ["byebyeee", "ttyl bye", "tnx for today:) byeee"]),
+        (r"(.*)food(.*)", ["I looooove spicy food hihi", "I could eat every day, oh wait, i already do hahah",
+                           "I love to make food, i also like baking, but i dont like pastries so not a good combo"]),
+        (r"(.*)sport(.*)|(.*)sports(.*)", ["Ehheh I dont really watch or play any sports anymore",
+                                           "Sports? Nope not for me", "I play games, not sports"]),
+        (r"(.*)movies(.*)|(.*)movie(.*)", ["I like horror movies, but there hasn't really been any good ones lately",
+                                           "Lovee all of the studio ghibli movies, nostalgia u know",
+                                           "I like 'Sunshine in a spotless mind' cuz it feels like a dream hehe"])
+    ]
+    alex_bot = Chat(pairs, reflections)
+    return alex_bot
 
 
 def huzeyfe():
@@ -78,7 +96,7 @@ def delete_chatroom(room_id):  # /api/room/<int:room_id>
 def join_chatroom(user_id, room_id):  # /api/room/<int:room_id>/users
     print("------------------------------------------------------------")
     print("joining the chat-room - MEMBERS POST-method:")
-    response = requests.post(f"{BASE}{room}{room_id}/{user_id}")
+    response = requests.post(f"{BASE}{room}{room_id}/members", {'room_id': room_id, 'user_id': user_id})
     print(response.json())
     return True
 
@@ -117,6 +135,7 @@ def leave_chatroom(user_id, room_id):  # /api/room/<int:room_id>/<int:user_id>
     print(response)
     return False
 
+
 # ############################ RUNNING PROGRAM #####################################
 
 
@@ -139,3 +158,8 @@ def client_connected_to_server(chatbot):
 
 bot = julia()  # starting chatbot
 client_connected_to_server(bot)
+
+
+bot2 = alex()
+client_connected_to_server(bot2)
+# må sende med user_id og room_id, maybe i client_connected_to_server(bot, room_id_user_id

@@ -68,23 +68,18 @@ print(response.json())
 
 
 print("------------------------------------------------------------")
-print("testing MEMBERS POST to room 1")
-response = requests.post(f"{BASE}{room}{1}/{1}")
+print("testing MEMBER POST to room 1")
+response = requests.post(f"{BASE}{room}{1}/members", {'room_id': 1, 'user_id': 1})
 print(response.json())
 
 print("------------------------------------------------------------")
-print("testing MEMBERS POST to room 1")
-response = requests.post(f"{BASE}{room}{1}/{2}")
+print("testing MEMBER POST to room 1")
+response = requests.post(f"{BASE}{room}{1}/members", {'room_id': 1, 'user_id': 2})
 print(response.json())
 
 print("------------------------------------------------------------")
-print("testing MEMBERS POST to room 1")
-response = requests.post(f"{BASE}{room}{1}/{1}")
-print(response.json())
-
-print("------------------------------------------------------------")
-print("testing MEMBERS GET member 1 from room 1")
-response = requests.get(f"{BASE}{room}{1}/{1}")
+print("testing MEMBER POST to room 1 (skal få feil)")
+response = requests.post(f"{BASE}{room}{1}/members", {'room_id': 1, 'user_id': 1})
 print(response.json())
 
 print("------------------------------------------------------------")

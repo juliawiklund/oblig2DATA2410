@@ -63,7 +63,7 @@ message_post.add_argument('username', type=str, required=True, help='Enter your 
 message_post.add_argument('message', type=str, required=True, help='Add a message...')
 
 
-class Message(Resource):        
+class Message(Resource):
 
     def get(self, room_id):
         # Skal returnere alle meldinger fra rommet
@@ -71,7 +71,7 @@ class Message(Resource):
         return "melding fra rommet", 200
 
 
-class Message2(Resource):  
+class Message2(Resource):
 
     def get(self, room_id, user_id):
         room_abort_not_exist(room_id)
@@ -79,6 +79,9 @@ class Message2(Resource):
 
         if members[user_id]['room_id'] == room_id and members[user_id]['user_id'] == user_id:
             return messages, 200
+
+        # for m in members:
+        #    if m.user_id == user_id:
 
         return abort(404, message="You do not have access to the messages")
 
@@ -147,16 +150,29 @@ global member_count
 member_count = 0
 
 
-def member_abort_does_exist(room_id, user_id):  # abort if the user is already added to the room
+# ###########WHICH ONE DO WE USE???
+
+def member_abort_does_exist(user_id):  # abort if the user is already added to the room
     if user_id in members:
         abort(409, message="User already in the chat or another chat room")
 
 
-class Member(Resource):  # /api/room/<room-id>/users
+
+member_post = reqparse.RequestParser()
+member_post.add_argument('room_id', type=int, required=True, help='Room ID is required')
+member_post.add_argument('user_id', type=int, required=True, help='User ID is required')
+
+
+# DENNE KAN FJERNES
+
+class Member(Resource):  # /api/room/<room-id>/<user-id>
     def get(self, room_id, user_id):
         room_abort_not_exist(room_id)
         user_not_exist_abort(user_id)
-        return members[user_id], 200
+        for number, m in enumerate(members):
+            if m[number]['user_id'] == user_id:
+                return m[number]['user_id'], 200
+        return "Member not found", 404
 
     def delete(self, room_id, user_id):
         room_abort_not_exist(room_id)
@@ -164,28 +180,30 @@ class Member(Resource):  # /api/room/<room-id>/users
         del members[user_id]
         return "member kicked out", 204
 
-    def post(self, room_id, user_id):
-        room_abort_not_exist(room_id)
-        user_not_exist_abort(user_id)
-        member_abort_does_exist(room_id, user_id)
-        global member_count
-        member_count += 1
-        members[user_id] = {"room_id": room_id, "user_id": user_id}
-        return "User added as member", 201
-
-    # maybe ta med put?
-
 
 class Members(Resource):
     def get(self, room_id):
         room_abort_not_exist(room_id)
-        if len(members) == 0:  # maybe consider to make it impossible to have a room without members?
+        if len(members) == 0:
             user_not_exist_abort(-1)
         return members
 
+    def post(self, room_id):
+        args = member_post.parse_args()
+        user_id = args.get('user_id')
+        # sjekker alt
+        room_abort_not_exist(room_id)
+        user_not_exist_abort(user_id)
+        member_abort_does_exist(user_id)
+        # lager member
+        global member_count
+        member_count += 1
+        members[member_count] = args
+        return member_count, 201
 
-api.add_resource(Members, "/api/room/<int:room_id>/members")  #
-api.add_resource(Member, "/api/room/<int:room_id>/<int:user_id>")
+
+api.add_resource(Members, "/api/room/<int:room_id>/members")
+# api.add_resource(Member, "/api/room/<int:room_id>/<int:user_id>")
 
 if __name__ == "__main__":
     app.run(debug=True)  # change debug when when we're not testing anymore
