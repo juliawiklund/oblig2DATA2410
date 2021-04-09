@@ -123,8 +123,10 @@ class Room(Resource):
         return rooms[room_id], 200
 
     def delete(self, room_id):  # check if creator is the only member in members before deleting
+        args = user_id_check.parse_args()
+        user_not_exist_abort(args['user_id'])
         room_abort_not_exist(room_id)
-        del rooms[room_id]
+        del rooms['rooms'][room_id]
         return "Room deleted", 204
 
 

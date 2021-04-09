@@ -148,9 +148,8 @@ def join_chatroom(user_id, room_id):  # /api/room/<int:room_id>/users
 def delete_chatroom(room_id):  # /api/room/<int:room_id>
     print("------------------------------------------------------------")
     print("creator of chat-room closing it - ROOMS DELETE-method:")
-    response = requests.delete(
-        f"{BASE}{room}{room_id}")  # (make sure to somehow verify it's the creator of the room calling this method)
-    return response
+    response = requests.delete(f"{BASE}{room}{room_id}")  # (make sure to somehow verify it's the creator of the room calling this method)
+    print(f"room nr {room_id} deleted: {response}")
 
 
 def start_conversation(chatbot, user_id, room_id):  # /api/room/<int:room_id>/<int:user_id>/messages
@@ -206,6 +205,7 @@ def client_connected_to_server(chatbot):
 
             # if msg['message'] == "bye":
             #     in_chatroom = leave_chatroom(user_id, room_id)
+            delete_chatroom(room_id)
             in_chatroom = False
 
         connected = False
