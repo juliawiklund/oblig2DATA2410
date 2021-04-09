@@ -31,6 +31,8 @@ def alex():
         (r"start conversation", ["Hiii girliesss, hope everybody is having a good day, welcome to the chat",
                                  "Wuddup errybody, i made this soooo lets talk",
                                  "Hello and welcome to the gc :) hope we'll have a nice convo"]),
+        (r"(.*)Hi(.*)|(.*)Hey(.*)|(.*)Welcome(.*)|(.*)Hello(.*)", ["Helluuu, happy to be here",
+                                                                   "Ouuu fun a new chatroom"]),
         (r"choose rooom (.*)", ["0", "1", "2", "3"]),
         (r"bye", ["byebyeee", "ttyl bye", "tnx for today:) byeee"]),
         (r"(.*)food(.*)", ["I looooove spicy food hihi", "I could eat every day, oh wait, i already do hahah",
@@ -39,7 +41,8 @@ def alex():
                                            "Sports? Nope not for me", "I play games, not sports"]),
         (r"(.*)movies(.*)|(.*)movie(.*)", ["I like horror movies, but there hasn't really been any good ones lately",
                                            "Lovee all of the studio ghibli movies, nostalgia u know",
-                                           "I like 'Sunshine in a spotless mind' cuz it feels like a dream hehe"])
+                                           "I like 'Sunshine in a spotless mind' cuz it feels like a dream hehe"]),
+        (r"(.*)", "I dont know how to respond to that")
     ]
     alex_bot = Chat(pairs, reflections)
     return alex_bot
@@ -157,6 +160,14 @@ def join_chatroom(user_id, room_id):  # /api/room/<int:room_id>/users
     return True
 
 
+def find_room_id_for_roomname(user_id, roomname):
+    all_rooms = get_all_chatrooms(user_id)
+    for index, r in enumerate(all_rooms['rooms']):
+        if r['roomname'] == roomname:
+            return index
+    return "invalid roomname"
+
+
 def delete_chatroom(room_id):  # /api/room/<int:room_id>
     print("------------------------------------------------------------")
     print("creator of chat-room closing it - ROOMS DELETE-method:")
@@ -168,12 +179,26 @@ def delete_chatroom(room_id):  # /api/room/<int:room_id>
 def start_conversation(chatbot, user_id, room_id):  # /api/room/<int:room_id>/<int:user_id>/messages
     msg = chatbot.respond("start conversation")
     alias = chatbot.respond("alias")
-    msg_json = {"user_id": user_id, "username": alias, "message": msg}
+    msg_json = {"user_id": user_id, "username": alias, "message": msg, "room_id": room_id}
     response = requests.post(f"{BASE}{room}{room_id}/{user_id}/messages", msg_json)
     print("------------------------------------------------------------")
     print("starting conversation in chat-room - MESSAGES2 POST-method:")
     msg = response.json()
     return msg
+
+
+def send_message(bot, user_id, room_id):
+    last_message = recieve_last_message(user_id, room_id)
+    if last_message is not None:
+        bot_msg = bot.respond(last_message['message'])
+        username = bot.respond("alias")
+        msg_json = {"user_id": user_id, "username": username, "message": bot_msg, "room_id": room_id}
+        response = requests.post(f"{BASE}{room}{room_id}/{user_id}/messages", msg_json)
+        print("------------------------------------------------------------")
+        print("sending message from bot:")
+        format_and_print_msg(msg_json)
+        msg = response.json()
+        return msg
 
 
 def recieve_messages(user_id, room_id):  # /api/room/<int:room_id>/<int:user_id>/messages
@@ -182,6 +207,12 @@ def recieve_messages(user_id, room_id):  # /api/room/<int:room_id>/<int:user_id>
     for m in msg['messages']:
         if m is not None and m['user_id'] != user_id:
             format_and_print_msg(m)
+
+
+def recieve_last_message(user_id, room_id):
+    response = requests.get(f"{BASE}{room}{room_id}/messages")
+    msg = response.json()
+    return msg
 
 
 def format_and_print_msg(msg):
@@ -238,6 +269,54 @@ def client_connected_to_server2(chatbot):
     print("bot disconnected")
 
 
+def user_defined_bot():
+    return None
+
+
+def choose_bot():
+    print("Choose a chatbot ('julia', 'alex', 'huzeyfe', 'josh' or 'user')")
+    botname = input()
+    bot = None
+    if botname == "julia":
+        bot = julia()
+    elif botname == "alex":
+        bot = alex()
+    elif botname == "huzeyfe":
+        bot = huzeyfe()
+    elif botname == "josh":
+        bot = josh()
+    elif botname == "user":
+        bot = user_defined_bot()
+    else:
+        print("you have to choose one of the options we defined")
+
+    return bot
+
+
+def create_or_join_room(bot, user_id):
+    print("Would you like to create or join an existing chatroom? Type: (create/join)")
+    response = input()
+    if response == "create":
+        room_ID = create_chatroom(bot, user_id)
+        start_conversation(bot, user_id, room_ID)
+        return room_ID
+    elif response == "join":
+        print("Which chatroom would you like to join? Type: <room name>")
+        get_all_chatrooms(user_id)
+        roomname = input()
+        # !!!!!!FIX : validate room name
+
+        room_id = find_room_id_for_roomname(user_id, roomname)
+        print(room_id)
+        join_chatroom(user_id, room_id)
+        recieve_messages(user_id, room_id)
+        send_message(bot, user_id, room_id)
+        return room_id
+    else:
+        print("Invalid answer, please try again")
+        create_or_join_room(bot, user_id)
+
+
 # bot = julia()  # starting chatbot
 # client_connected_to_server(bot)
 # bot2 = alex()
@@ -251,14 +330,20 @@ clientSocket.connect(('localhost', 2345))
 clientRunning = True
 
 while clientRunning:
-    clientSocket.send("{'user_id': 1}".encode())
-    msg = clientSocket.recv(1024).decode()
-    notification.notify(
-        title="New message",
-        message="You received a new message from the chat",
-        timeout=50
-    )
+    bot = choose_bot()
+    user_id = register_user(bot)
+    room_id = create_or_join_room(bot, user_id)
 
-    print("Push sendt")
+    # if bot reply = None :
+    # write reply to start new topic (OK, but i want to talk about food)
+
+    # Somehow keep connection open so clients can receive other bots replies
+
+    # notification.notify(
+    #    title="New message",
+    #    message="You received a new message from the chat",
+    #    timeout=50
+    # )
+    # print("Push sendt")
     clientSocket.close()
     clientRunning = False
