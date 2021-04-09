@@ -221,5 +221,5 @@ while socketRunning:
         client.close()
     socketRunning = False
 
-if __name__ == "__main__":
-    app.run(debug=True)  # change debug when when we're not testing anymore
+# if __name__ == "__main__":
+#     app.run(debug=True)  # change debug when when we're not testing anymore
