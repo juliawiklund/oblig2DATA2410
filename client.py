@@ -81,7 +81,17 @@ def huzeyfe():
 
 
 def josh():
-    pass
+    pairs = [
+        (r"username", "josh"),
+        (r"alias", ["josh1405", "josh"]),
+        (r"password", "josh123"),
+        (r"roomname", ["josh_chatroom", "Movies"]),
+        (r"start conversation", ["Hello, what's up?", "Hi guys!"]),
+        (r"bye", ["See you!", "Bye"]),
+        (r"(.*)movie(.*)", ["What kind of movies do you like?", "One time I saw a movie about food."]),
+    ]
+    chatbot = Chat(pairs, reflections)
+    return chatbot
 
 
 # ################################### EXAMPLE INPUT ####################################
