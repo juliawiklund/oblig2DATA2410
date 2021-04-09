@@ -69,14 +69,22 @@ message_post = reqparse.RequestParser()
 message_post.add_argument('user_id', type=int, required=True, help='Enter your userid')
 message_post.add_argument('username', type=str, required=True, help='Enter your username')
 message_post.add_argument('message', type=str, required=True, help='Add a message...')
+message_post.add_argument('room_id', type=int, required=True, help='You need a room id to get messages from')
 
 
 class Message(Resource):
 
     def get(self, room_id):
-        # Skal returnere alle meldinger fra rommet
         room_abort_not_exist(room_id)
-        return "melding fra rommet", 200
+        all_messages = messages['messages']
+        all_messages_in_room = []
+        for message in all_messages:
+            if message['room_id'] == room_id:
+                all_messages_in_room.append(message)
+
+        last_index = len(all_messages_in_room)-1
+        last_message = all_messages_in_room[last_index]
+        return last_message, 200
 
 
 class Message2(Resource):
@@ -213,14 +221,9 @@ while socketRunning:
     client, address = serverSocket.accept()
     connectedClients.append(client)
 
-    received = client.recv(1024).decode()
-    for x in connectedClients:
-        x.send(received.encode())
-
     for client in connectedClients:
         client.close()
     socketRunning = False
 
 if __name__ == "__main__":
     app.run()  # change debug when when we're not testing anymore
-#hei
