@@ -24,17 +24,19 @@ def alex():
         (r"alias", ["alexxx", "ale", "alez"]),
         (r"password", ["ale123", "hvordanlagermanpassord123"]),
         (r"roomname", ["datanett gc", "the gang", "cabbage"]),
-        (r"start conversation", ["Hiii girliesss, hope everybody is having a good day, welcome to the chat",
-                                 "Wuddup errybody, i made this soooo lets talk",
+        (r"start conversation", ["Hiii girliesss, hope everybody is having a good day",
+                                 "Wuddup errybody, now we have a chat soooo lets talk",
                                  "Hello and welcome to the gc :) hope we'll have a nice convo"],),
         (r"bye", ["byebyeee", "ttyl bye", "tnx for today:) byeee"]),
         (r"(.*)food(.*)", ["I looooove spicy food hihi", "I could eat every day, oh wait, i already do hahah",
-                           "I love to make food, i also like baking, but i dont like pastries so not a good combo"]),
+                           "I love to make food, i also like baking, but i dont like pastries so not a good combo",
+                           "I can eat everything, as long as its not boring"]),
         (r"(.*)sport(.*)|(.*)sports(.*)", ["Ehheh I dont really watch or play any sports anymore",
                                            "Sports? Nope not for me", "I play games, not sports"]),
         (r"(.*)movies(.*)|(.*)movie(.*)", ["I like horror movies, but there hasn't really been any good ones lately",
                                            "Lovee all of the studio ghibli movies, nostalgia u know",
                                            "I like 'Sunshine in a spotless mind' cuz it feels like a dream hehe"])
+        # ,(r"(.*)ketchup(.*), ["I used to eat ketchup out of a jar haha, but now i only have ketchup with fries"]
     ]
     alex_bot = Chat(pairs, reflections)
     return alex_bot
