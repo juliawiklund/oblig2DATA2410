@@ -1,6 +1,8 @@
 from nltk.chat.util import Chat, reflections
 import requests
 import random
+import socket
+from win10toast import ToastNotifier
 
 
 # ################################# BOTS ###################################
@@ -158,7 +160,8 @@ def join_chatroom(user_id, room_id):  # /api/room/<int:room_id>/users
 def delete_chatroom(room_id):  # /api/room/<int:room_id>
     print("------------------------------------------------------------")
     print("creator of chat-room closing it - ROOMS DELETE-method:")
-    response = requests.delete(f"{BASE}{room}{room_id}")  # (make sure to somehow verify it's the creator of the room calling this method)
+    response = requests.delete(
+        f"{BASE}{room}{room_id}")  # (make sure to somehow verify it's the creator of the room calling this method)
     print(f"room nr {room_id} deleted: {response}")
 
 
@@ -228,19 +231,32 @@ def client_connected_to_server2(chatbot):
         available_rooms = get_all_chatrooms(user_id)
         room_id = choose_room(available_rooms)
         in_chatroom = join_chatroom(user_id, room_id)
-      #  while in_chatroom:
+        #  while in_chatroom:
         recieve_messages(user_id, room_id)
         connected = False
 
     print("bot disconnected")
 
 
-bot = julia()  # starting chatbot
-client_connected_to_server(bot)
-
-bot2 = alex()
-client_connected_to_server2(bot2)
+# bot = julia()  # starting chatbot
+# client_connected_to_server(bot)
+# bot2 = alex()
+# client_connected_to_server2(bot2)
 
 # bot3 = huzeyfe()
 # client_connected_to_server(bot3)
 # må sende med user_id og room_id, maybe i client_connected_to_server(bot, room_id_user_id
+clientSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+clientSocket.connect(('localhost', 2345))
+clientRunning = True
+
+while clientRunning:
+
+    clientSocket.send("{'user_id': 1}".encode())
+    msg = clientSocket.recv(1024).decode()
+
+    push = ToastNotifier()
+    push.show_toast("New message", "Yo received message")
+    print("Push sendt")
+    clientSocket.close()
+    clientRunning = False

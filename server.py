@@ -1,5 +1,6 @@
 from flask import Flask, request
 from flask_restful import Api, Resource, reqparse, abort
+import socket
 
 app = Flask(__name__)
 api = Api(app)
@@ -195,6 +196,30 @@ class Members(Resource):  # /api/room/<room-id>/members
 
 
 api.add_resource(Members, "/api/room/<int:room_id>/members")
+
+# ########################## SOCKETS ################################
+
+socketRunning = True
+serverSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+port = 2345
+ip = "localhost"
+serverSocket.bind((ip, port))
+serverSocket.listen(4)
+room_size = 1
+
+while socketRunning:
+    connectedClients = []
+    # for x in range(room_size)
+    client, address = serverSocket.accept()
+    connectedClients.append(client)
+
+    received = client.recv(1024).decode()
+    for x in connectedClients:
+        x.send(received.encode())
+
+    for client in connectedClients:
+        client.close()
+    socketRunning = False
 
 if __name__ == "__main__":
     app.run(debug=True)  # change debug when when we're not testing anymore
