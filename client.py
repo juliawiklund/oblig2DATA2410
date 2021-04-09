@@ -2,7 +2,7 @@ from nltk.chat.util import Chat, reflections
 import requests
 import random
 import socket
-from win10toast import ToastNotifier
+from plyer import notification
 
 
 # ################################# BOTS ###################################
@@ -251,12 +251,14 @@ clientSocket.connect(('localhost', 2345))
 clientRunning = True
 
 while clientRunning:
-
     clientSocket.send("{'user_id': 1}".encode())
     msg = clientSocket.recv(1024).decode()
+    notification.notify(
+        title="New message",
+        message="You received a new message from the chat",
+        timeout=50
+    )
 
-    push = ToastNotifier()
-    push.show_toast("New message", "Yo received message")
     print("Push sendt")
     clientSocket.close()
     clientRunning = False
