@@ -253,11 +253,11 @@ clientRunning = True
 while clientRunning:
     clientSocket.send("{'user_id': 1}".encode())
     msg = clientSocket.recv(1024).decode()
-    notification.notify(
-        title="New message",
-        message="You received a new message from the chat",
-        timeout=50
-    )
+    # notification.notify(
+    #     title="New message",
+    #     message="You received a new message from the chat",
+    #     timeout=50
+    # )
 
     print("Push sendt")
     clientSocket.close()
