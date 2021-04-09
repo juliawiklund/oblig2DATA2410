@@ -2,7 +2,6 @@ from nltk.chat.util import Chat, reflections
 import requests
 import random
 import socket
-from plyer import notification
 
 
 # ################################# BOTS ###################################
@@ -259,6 +258,15 @@ while clientRunning:
     #     timeout=50
     # )
 
-    print("Push sendt")
+
+    #bot = choose_bot()
+    #user_id = register_user(bot)
+    #room_id = create_or_join_room(bot, user_id)
+
+    # if bot reply = None :
+    # write reply to start new topic (OK, but i want to talk about food)
+
+    # Somehow keep connection open so clients can receive other bots replies
+
     clientSocket.close()
     clientRunning = False
