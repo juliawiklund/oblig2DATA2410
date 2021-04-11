@@ -14,8 +14,18 @@ def julia():
         (r"roomname", ["oblig2chatt", "olafiaklinikken"]),
         (r"start conversation", ["Hi everyone, welcome to the chat", "Hey guys, nice to see you're all here"]),
         (r"choose rooom (.*)", ["0", "1", "2", "3"]),
-        (r"bye", ["bye", "see ya"]),
-        (r"(.*)ketchup(.*)", ["AAAH, elsker mackern", "Jeg liker friiies med ketchup"])
+        (r"(.*)Hi(.*)|(.*)Hey(.*)|(.*)Welcome(.*)|(.*)Hello(.*)", ["Hiii, it's great to be here, I need lunch tips!"]),
+        (r"(.*)food(.*)", ["What do you want? I'm mostly into vegetarian food, though the latest dish I descovered is "
+                           "the Persian khoresh with lamb called ghormeh sabsi!"]),
+        (r"bye", ["bye"]),
+        (r"(.*)ketchup(.*)", ["AAAH, elsker mackern", "Jeg liker friiies med ketchup"]),
+        (r"(.*)sport(.*)", ["Generally I'm more into art than sport. I watched La liga in 2019 when I lived with a "
+                            "couple of Spanish guys, which was awesome, but I guess I think it's more exciting to "
+                            "watch when someone has a local connection to the teams.",
+                            "Hmm, I used to play soccer, volleyball and badminton. All awesome sports but I honestly "
+                            "never prioritize playing anymore, now it's just random the few times I get to play.",
+                            "I'm into dancing, guess it's not a sport really but Chicago-footwork jams and battles"
+                            "looks sporty to me, haha."])
     ]
     chatbot = Chat(pairs, reflections)
     return chatbot
@@ -103,8 +113,8 @@ def josh():
 BASE = "http://127.0.0.1:5000"
 user = "/api/user/"
 users = "/api/users"
-user_id1 = 1
-user_id2 = 2
+# user_id1 = 1
+# user_id2 = 2
 json_user1 = {"username": "alex", "password": "password123"}
 json_user2 = {"username": "josh", "password": "password456"}
 rooms = "/api/rooms"
@@ -145,7 +155,8 @@ def get_all_chatrooms(user_id):  # /api/rooms
     return all_chatrooms
 
 
-def choose_room(room_list):
+def choose_room(
+        room_list):  # A method to choose randomly out of the given room indexes (If we'll implement bots choosing rooms automatically).
     last_index = len(room_list['rooms']) - 1
     room_index = random.randint(0, last_index)
     return room_index
@@ -159,12 +170,12 @@ def join_chatroom(user_id, room_id):  # /api/room/<int:room_id>/users
     return True
 
 
-def find_room_id_for_roomname(user_id, roomname):
-    all_rooms = get_all_chatrooms(user_id)
+def find_room_id_for_roomname(roomname, all_rooms):
+    #  all_rooms = get_all_chatrooms(user_id)
     for index, r in enumerate(all_rooms['rooms']):
         if r['roomname'] == roomname:
             return index
-    return "invalid roomname"
+    return -1
 
 
 def delete_chatroom(room_id):  # /api/room/<int:room_id>
@@ -268,62 +279,63 @@ def client_connected_to_server2(chatbot):
     print("bot disconnected")
 
 
-def user_defined_bot():
-    return None
+def user_defined_bot():  # create prompt and input validation for each post.
+    pass
 
 
 def choose_bot():
     print("Choose a chatbot ('julia', 'alex', 'huzeyfe', 'josh' or 'user')")
-    botname = input()
-    bot = None
+    botname = input(">")
+    chatbot = None
     if botname == "julia":
-        bot = julia()
+        chatbot = julia()
     elif botname == "alex":
-        bot = alex()
+        chatbot = alex()
     elif botname == "huzeyfe":
-        bot = huzeyfe()
+        chatbot = huzeyfe()
     elif botname == "josh":
-        bot = josh()
+        chatbot = josh()
     elif botname == "user":
-        bot = user_defined_bot()
+        chatbot = user_defined_bot()
     else:
         print("you have to choose one of the options we defined")
 
-    return bot
+    return chatbot
 
 
 def create_or_join_room(bot, user_id):
     print("Would you like to create or join an existing chatroom? Type: (create/join)")
-    response = input()
+    response = input(">")
     if response == "create":
         room_ID = create_chatroom(bot, user_id)
         start_conversation(bot, user_id, room_ID)
         return room_ID
     elif response == "join":
-        print("Which chatroom would you like to join? Type: <room name>")
-        get_all_chatrooms(user_id)
-        roomname = input()
-        # !!!!!!FIX : validate room name
-
-        room_id = find_room_id_for_roomname(user_id, roomname)
-        print(room_id)
-        join_chatroom(user_id, room_id)
-        recieve_messages(user_id, room_id)
-        send_message(bot, user_id, room_id)
+        room_id = join_room_validation(user_id)
+        print(f"room ID for choosen room: {room_id}")
+        if join_chatroom(user_id, room_id):
+            recieve_messages(user_id, room_id)
+            send_message(bot, user_id, room_id)
         return room_id
     else:
         print("Invalid answer, please try again")
         create_or_join_room(bot, user_id)
 
 
-# bot = julia()  # starting chatbot
-# client_connected_to_server(bot)
-# bot2 = alex()
-# client_connected_to_server2(bot2)
+def join_room_validation(user_id):
+    room_id = -1
+    while room_id == -1 or room_id is None:
+        print("Which chatroom would you like to join? Type: <room name>")
+        all_rooms = get_all_chatrooms(user_id)
+        roomname = input(">")
+        room_id = find_room_id_for_roomname(roomname, all_rooms)
+        if room_id == -1 or room_id is None:
+            print("Invalid room name. Try again.")
+    return room_id
 
-# bot3 = huzeyfe()
-# client_connected_to_server(bot3)
-# må sende med user_id og room_id, maybe i client_connected_to_server(bot, room_id_user_id
+
+# ############################ SOCKET #####################################
+
 clientSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 clientSocket.connect(('localhost', 2345))
 clientRunning = True
