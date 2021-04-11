@@ -122,14 +122,17 @@ room = "/api/room/"
 msgPack = {"user_id": 1, "username": "uzi", "message": "heisann"}
 msgPack2 = {"user_id": 2, "username": "josh", "message": "heihei"}
 
-
+# ################################### Global Message variable ####################################
+global last_msg_index
+last_msg_index = -1
 # ################################### CLIENT METHODS ####################################
+
 
 def register_user(chatbot):  # /api/users
     register = {'username': chatbot.respond('username'), 'password': chatbot.respond('password')}
     print("------------------------------------------------------------")
     print("register bot - USERS POST-method:")
-    response = requests.post(f"{BASE}{users}", register)
+    response = requests.post(f"{BASE}{users}", register )
     user_ID = response.json()
     print(f"registered a new user with id: {user_ID}")
     return user_ID
@@ -151,7 +154,7 @@ def get_all_chatrooms(user_id):  # /api/rooms
     print("getting all chat rooms - ROOMS GET-method:")
     response = requests.get(f"{BASE}{rooms}", user_json)
     all_chatrooms = response.json()
-    format_and_print_room(all_chatrooms)
+    #  format_and_print_room(all_chatrooms)
     return all_chatrooms
 
 
@@ -167,7 +170,6 @@ def join_chatroom(user_id, room_id):  # /api/room/<int:room_id>/users
     print("joining the chat-room - MEMBERS POST-method:")
     response = requests.post(f"{BASE}{room}{room_id}/members", {'room_id': room_id, 'user_id': user_id})
     print(response.json())
-    return True
 
 
 def find_room_id_for_roomname(roomname, all_rooms):
@@ -197,8 +199,7 @@ def start_conversation(chatbot, user_id, room_id):  # /api/room/<int:room_id>/<i
     return msg
 
 
-def send_message(bot, user_id, room_id):
-    last_message = recieve_last_message(user_id, room_id)
+def send_message(bot, user_id, room_id, last_message):
     if last_message is not None:
         bot_msg = bot.respond(last_message['message'])
         username = bot.respond("alias")
@@ -211,16 +212,20 @@ def send_message(bot, user_id, room_id):
         return msg
 
 
-def recieve_messages(user_id, room_id):  # /api/room/<int:room_id>/<int:user_id>/messages
+def recieve_unread_messages(user_id, room_id):  # /api/room/<int:room_id>/<int:user_id>/messages
     response = requests.get(f"{BASE}{room}{room_id}/{user_id}/messages")
-    msg = response.json()
-    for m in msg['messages']:
-        if m is not None and m['user_id'] != user_id:
-            format_and_print_msg(m)
+    messages = response.json()
+    i = 0
+    for i, msg in enumerate(messages['messages']):
+        global last_msg_index
+        if msg is not None and msg['user_id'] != user_id and i > last_msg_index:
+            format_and_print_msg(msg)  # printing new messages from other users if index is bigger than last time
+    last_msg_index = i
 
 
 def recieve_last_message(user_id, room_id):
-    response = requests.get(f"{BASE}{room}{room_id}/messages")
+    response = requests.get(
+        f"{BASE}{room}{room_id}/messages")  # , {"user_id" : user_id} [ check MSG GET-method on server]
     msg = response.json()
     return msg
 
@@ -273,7 +278,7 @@ def client_connected_to_server2(chatbot):
         room_id = choose_room(available_rooms)
         in_chatroom = join_chatroom(user_id, room_id)
         #  while in_chatroom:
-        recieve_messages(user_id, room_id)
+        recieve_unread_messages(user_id, room_id)
         connected = False
 
     print("bot disconnected")
@@ -304,51 +309,73 @@ def choose_bot():
 
 
 def create_or_join_room(bot, user_id):
+    # check if there are any available rooms to actually join before offering it.
     print("Would you like to create or join an existing chatroom? Type: (create/join)")
     response = input(">")
     if response == "create":
         room_ID = create_chatroom(bot, user_id)
-        start_conversation(bot, user_id, room_ID)
-        return room_ID
+        return room_ID, True
     elif response == "join":
-        room_id = join_room_validation(user_id)
+        room_id = validation_roomname(user_id)
         print(f"room ID for choosen room: {room_id}")
-        if join_chatroom(user_id, room_id):
-            recieve_messages(user_id, room_id)
-            send_message(bot, user_id, room_id)
-        return room_id
+        return room_id, False
     else:
         print("Invalid answer, please try again")
         create_or_join_room(bot, user_id)
 
 
-def join_room_validation(user_id):
+def validation_roomname(user_id):
     room_id = -1
+    all_rooms = get_all_chatrooms(user_id)
     while room_id == -1 or room_id is None:
         print("Which chatroom would you like to join? Type: <room name>")
-        all_rooms = get_all_chatrooms(user_id)
+        format_and_print_room(all_rooms)
         roomname = input(">")
         room_id = find_room_id_for_roomname(roomname, all_rooms)
         if room_id == -1 or room_id is None:
             print("Invalid room name. Try again.")
     return room_id
+# ############################ Creator of chatroom chat-Protocol #####################################
+def creator_chat_protocol(in_chatroom, ):
+    while in_chatroom:
 
+
+# ############################ Joiner of chatroom chat-Protocol #####################################
+def joiner_chat_protocol(in_chatroom,):
+    while in_chatroom:
 
 # ############################ SOCKET #####################################
 
-clientSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-clientSocket.connect(('localhost', 2345))
-clientRunning = True
+def run_client():
+    clientSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    clientSocket.connect(('localhost', 2345))
 
-while clientRunning:
-    bot = choose_bot()
-    user_id = register_user(bot)
-    room_id = create_or_join_room(bot, user_id)
+    # ####### Identifiers ##############
+    bot = choose_bot()  # choosing bot from user input
+    user_id = register_user(bot)  # registering new user and receive user ID
+    room_id, creator = create_or_join_room(bot, user_id)  # choosing to join/create room from user input
 
-    # if bot reply = None :
-    # write reply to start new topic (OK, but i want to talk about food)
+    in_chatroom = True
+    if creator:  # returning creator = True if a new room was created
+        start_conversation(bot, user_id, room_id)
+        creator_chat_protocol(in_chatroom)
+    if not creator:  # creator = False if the bot joined an existing room
+        join_chatroom(user_id, room_id)
+        recieve_unread_messages(user_id, room_id)  # if joining an ongoing chatt, get all messages in it
 
-    # Somehow keep connection open so clients can receive other bots replies
 
+            last_msg = recieve_last_message(user_id, room_id)
+            if last_msg['message'] == "bye":
+                leave_chatroom(user_id, room_id)
+                in_chatroom = False
+            send_message(bot, user_id, room_id, last_msg)
     clientSocket.close()
-    clientRunning = False
+    # clientRunning = False
+
+
+run_client()
+
+# if bot reply = None :
+# write reply to start new topic (OK, but i want to talk about food)
+
+# Somehow keep connection open so clients can receive other bots replies
