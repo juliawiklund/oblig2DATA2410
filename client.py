@@ -46,7 +46,7 @@ def alex():
         (r"password", ["ale123", "hvordanlagermanpassord123"]),
         (r"roomname", ["datanett gc", "the gang", "cabbage"]),
         (r"start conversation", ["Hiii girliesss, hope everybody is having a good day, welcome to the chat",
-                                 "Wuddup errybody, i made this soooo lets talk",
+                                 "Heyy errybody, i made this soooo lets talk",
                                  "Hello and welcome to the gc :) hope we'll have a nice convo"]),
         (r"(.*)Hi(.*)|(.*)Hey(.*)|(.*)Welcome(.*)|(.*)Hello(.*)", ["Helluuu, happy to be here",
                                                                    "Ouuu fun a new chatroom"]),
