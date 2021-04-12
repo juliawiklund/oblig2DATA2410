@@ -16,7 +16,9 @@ def julia():
         (r"start conversation", ["Hi everyone, welcome to the chat", "Hey guys, nice to see you're all here"]),
         (r"topic", ["I actually need some new recipies. I've been cooking the same food for three weeks in a row.",
                     "Are any of you into sports?", "Have you guys watched any good movies during lockdown?"]),
-        (r"(.*) Hi(.*)|(.*) Hey(.*)|(.*)Welcome(.*)|(.*)Hello(.*)", ["Hiii, it's great to be here, I need lunch tips!"]),
+        (
+            r"(.*) Hi(.*)|(.*) Hey(.*)|(.*)Welcome(.*)|(.*)Hello(.*)",
+            ["Hiii, it's great to be here, I need lunch tips!"]),
         (r"(.*)food(.*)", ["What do you want? I'm mostly into vegetarian food, though the latest dish I descovered is "
                            "the Persian khoresh with lamb called ghormeh sabsi!"]),
         (r"bye", ["bye"]),
@@ -49,7 +51,7 @@ def alex():
                                  "Heyy errybody, i made this soooo lets talk",
                                  "Hello and welcome to the gc :) hope we'll have a nice convo"]),
         (r"(.*) Hi(.*)|(.*) Hey(.*)|(.*) Welcome(.*)|(.*) Hello(.*)", ["Helluuu, happy to be here",
-                                                                   "Ouuu fun a new chatroom"]),
+                                                                       "Ouuu fun a new chatroom"]),
         (r"bye", ["bye"]),
         (r"topic", ["Sooo what kind of food do you guys like?", "Well, i guess we could talk about sports",
                     "Do you guys have any favorite films", "What kind of movies or series do you guys watch?"]),
@@ -117,6 +119,16 @@ def josh():
                     "Sports! Can we talk about something else haha.",
                     "I've seen a lot of good films.",
                     "Who wants to go and watch a movie? I'll bring some popcorn :)"]),
+        (r"(.*)vegetarian food(.*)", ["Vegetarian food sounds nice. I haven't had that in a while."]),
+        (r"(.*)spicy(.*)", ["I don't like spicy food, cause I have a very low tolerance on spicy things haha."]),
+        (r"(.*)dancing(.*)", ["I'm not reaaly good at dancing haha. My friend make fun of me whenever I try to dance :P",
+                             "I tried to do tiktok dances but it didn't workout haha. I looked like a stick trying to "
+                             "dance. rip"]),
+        (r"(.*)volleyball(.*)", ["I had that at P.E. in high school. It was fun. Although whenever I get to serve it "
+                                 "lowkey "
+                                 "hurts haha."]),
+        (r"(.*)not sports(.*)", ["Me too. ", "Saaaaammmme"]),
+        (r"(.*)documentaries(.*)", ["Ooooo I love watching documentaries. I saw one about sports last time."]),
         (r"bye", ["bye"]),
         (r"(.*)movie(.*)", ["What kind of movies do you like?",
                             "One time I saw a movie about food.",
@@ -126,14 +138,6 @@ def josh():
                             "Whaaaat sports, Not interested haha. How about movies?",
                             "Did you know I was in a basketball team when I was 13 years old?",
                             "My cousins love to watch sports"]),
-        (r"(.*)volleyball", ["I had that at P.E. in high school. It was fun. Although whenever I get to serve it "
-                             "lowkey "
-                             "hurts haha."]),
-        (r"(.*)dancing", ["I'm not reaaly good at dancing haha. My friend make fun of me whenever I try to dance :P",
-                          "I tried to do tiktok dances but it didn't workout haha. I looked like a stick trying to "
-                          "dance. "
-                          "rip"]),
-        (r"(.*)not sports", ["Me too. ", "Saaaaammmme"]),
         (r"(.*)food(.*)", ["I love making food.",
                            "My favorite food is pasta. And I also like making them",
                            "I love to bake different kinds of pastries",
@@ -252,7 +256,7 @@ def recieve_unread_messages(user_id, room_id):  # /api/room/<int:room_id>/<int:u
         global last_msg_index
         if msg is not None and msg['user_id'] != user_id and i > last_msg_index:
             format_and_print_msg(msg)  # printing new messages from other users if index is bigger than last time
-        i = i+1
+        i = i + 1
     last_msg_index = i
 
 
