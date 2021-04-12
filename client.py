@@ -14,12 +14,12 @@ def julia():
         (r"password", ["julia123", "wiklund456"]),
         (r"roomname", ["olafiaklinikken", "snacks", "Hogwarts"]),
         (r"start conversation", ["Hi everyone, welcome to the chat", "Hey guys, nice to see you're all here"]),
-        (r"topic", ["food", "sport", "film", "movies"]),
+        (r"topic", ["I actually need some new recipies. I've been cooking the same food for three weeks in a row.",
+                    "Are any of you into sports?", "Have you guys watched any good movies during lockdown?"]),
         (r"(.*)Hi(.*)|(.*)Hey(.*)|(.*)Welcome(.*)|(.*)Hello(.*)", ["Hiii, it's great to be here, I need lunch tips!"]),
         (r"(.*)food(.*)", ["What do you want? I'm mostly into vegetarian food, though the latest dish I descovered is "
                            "the Persian khoresh with lamb called ghormeh sabsi!"]),
         (r"bye", ["bye"]),
-        (r"(.*)ketchup(.*)", ["AAAH, elsker mackern", "Jeg liker friiies med ketchup"]),
         (r"(.*)sport(.*)", ["Generally I'm more into art than sport. I watched La liga in 2019 when I lived with a "
                             "couple of Spanish guys, which was awesome, but I guess I think it's more exciting to "
                             "watch when someone has a local connection to the teams.",
@@ -28,9 +28,11 @@ def julia():
                             "I'm into dancing, guess it's not a sport really but Chicago-footwork jams and battles"
                             "looks sporty to me, haha."]),
         (r"(.*)film(.*)|(.*)movie(.*)", ["I've been re-watching Matrix every break since first year of uni, the first "
-                                         "one is simply "
-                                         " great. It's therefore a freaking mystery how the other two got so incredibly bad??",
-                                         "Have anyone watched Brave New World? The tv-series on HBO, based on Alons Huxley "]),
+                                         "one is simply great. It's therefore a freaking mystery how the other two "
+                                         "got so incredibly bad??",
+                                         "Have anyone watched Brave New World? The tv-series on HBO, based on Aldous "
+                                         "Huxley sci-fi novel from 1932. I'm not sure if I should get HBO "
+                                         "subscription or not"]),
     ]
     chatbot = Chat(pairs, reflections)
     return chatbot
@@ -48,16 +50,14 @@ def alex():
         (r"(.*)Hi(.*)|(.*)Hey(.*)|(.*)Welcome(.*)|(.*)Hello(.*)", ["Helluuu, happy to be here",
                                                                    "Ouuu fun a new chatroom"]),
         (r"bye", ["byebyeee", "ttyl bye", "tnx for today:) byeee"]),
-        (r"topic", ["Sooo what do you think about food guys?", "Well, i guess we can talk about sport",
-                    "Do you have a favorie film?", "Lets talk about movies, what do you guys like?"]),
+        (r"topic", ["food", "sport", "film", "movies"]),
         (r"(.*)food(.*)", ["I looooove spicy food hihi", "I could eat every day, oh wait, i already do hahah",
                            "I love to make food, i also like baking, but i dont like pastries so not a good combo"]),
         (r"(.*)sport(.*)|(.*)sports(.*)", ["Ehheh I dont really watch or play any sports anymore",
                                            "Sports? Nope not for me", "I play games, not sports"]),
-        (r"(.*)movies(.*)|(.*)movie(.*)|(.*)film(.*)",
-         ["I like horror movies, but there hasn't really been any good ones lately",
-          "Lovee all of the studio ghibli movies, nostalgia u know",
-          "I like 'Sunshine in a spotless mind' cuz it feels like a dream hehe"]),
+        (r"(.*)movies(.*)|(.*)movie(.*)", ["I like horror movies, but there hasn't really been any good ones lately",
+                                           "Lovee all of the studio ghibli movies, nostalgia u know",
+                                           "I like 'Sunshine in a spotless mind' cuz it feels like a dream hehe"]),
         (r"(.*)", ["I dont know how to respond to that"])
     ]
     alex_bot = Chat(pairs, reflections)
@@ -79,8 +79,7 @@ def huzeyfe():
                   "I really appreciate the conversation, goodbye",
                   "Bye guys, we'll talk later",
                   "Goodbye!"]),
-        (r"topic", ["Dude im really hungry, down to get some food?", "sport if the best thing in the world, you guys agree?",
-        "Did someone see the new movie last week?! Wow it was amazing!"]),
+        (r"topic", ["food", "sport", "film", "movies"]),
         (r"(.*)food(.*)", ["Bro cant you see that I love food? Like look at me dude!",
                            "I can really eat everything, it's starting to get a big problem",
                            "I'm not a big fan of proper food, but I can eat snacks anytime",
@@ -91,8 +90,7 @@ def huzeyfe():
                                            "Sports are perhaps some of the most boring things you can do",
                                            "Bro I love sport, especially boxing",
                                            "Hahaha sport? I can 't even get out of bed, you're funny"]),
-        (r"(.*)movies(.*)|(.*)movie(.*)|(.*)film(.*)",
-         ["I mean everyone should have at least one movie night a week",
+        (r"(.*)movies(.*)|(.*)movie(.*)", ["I mean everyone should have at least one movie night a week",
                                            "Yeeah I am obsessed with star wars, i know absolutely everything about it:)",
                                            "To be honest I do not like movies, I prefer series",
                                            "I'm not actually watching movies guys:/",
