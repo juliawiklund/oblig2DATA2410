@@ -128,7 +128,7 @@ def josh():
                           "My cousins love to watch sports"]),
         (r"(*)food(*)", ["I love making food.",
                          "My favorite food is pasta. And I also like making them",
-                         "I love to bake different kinds of pastries"
+                         "I love to bake different kinds of pastries",
                          "Have you tried the food at the restaurant at the seaside"])
     ]
     chatbot = Chat(pairs, reflections)
