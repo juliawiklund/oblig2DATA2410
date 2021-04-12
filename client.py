@@ -363,6 +363,8 @@ def joiner_chat_protocol(in_chatroom, bot, user_id, room_id, alias):
         recieve_unread_messages(user_id, room_id)
         last_msg = recieve_last_message(user_id, room_id)
         if last_msg['message'] == "bye":
+            global last_msg_index
+            last_msg_index = -1
             in_chatroom = False
         else:
             send_message(bot, user_id, room_id, last_msg, alias)
@@ -379,20 +381,25 @@ def run_client():
     # ################## Identifiers #######################
     bot = choose_bot()  # choosing bot from user input
     user_id = register_user(bot)  # registering new user and receive user ID
-    room_id, creator = create_or_join_room(bot, user_id)  # choosing to join/create room from user input
-    alias = bot.respond("alias")
-    # ######################################################
 
-    in_chatroom = True
-    if creator:  # returning creator = True if a new room was created
-        start_conversation(bot, user_id, room_id, alias)
-        in_chatroom = creator_chat_protocol(in_chatroom, bot, user_id, room_id, alias)
-    if not creator:  # creator = False if the bot joined an existing room
-        join_chatroom(user_id, room_id)
-        # recieve_unread_messages(user_id, room_id)  # if joining an ongoing chatt, get all messages in it
-        in_chatroom = joiner_chat_protocol(in_chatroom, bot, user_id, room_id, alias)
-    if not in_chatroom:
-        clientSocket.close()
+    bot_active = True
+    while bot_active:
+        room_id, creator = create_or_join_room(bot, user_id)  # choosing to join/create room from user input
+        alias = bot.respond("alias")
+        in_chatroom = True
+        if creator:  # returning creator = True if a new room was created
+            start_conversation(bot, user_id, room_id, alias)
+            in_chatroom = creator_chat_protocol(in_chatroom, bot, user_id, room_id, alias)
+        if not creator:  # creator = False if the bot joined an existing room
+            join_chatroom(user_id, room_id)
+            # recieve_unread_messages(user_id, room_id)  # if joining an ongoing chatt, get all messages in it
+            in_chatroom = joiner_chat_protocol(in_chatroom, bot, user_id, room_id, alias)
+        if not in_chatroom:
+            print("Do you want to exit the program? type: (Yes/No)")
+            reply = input(">")
+            if reply.lower() == "yes":
+                bot_active = False
+    clientSocket.close()
 
 
 run_client()

@@ -74,6 +74,6 @@ join_chatroom(usr_id4, rm_id2)
 get_all_members_chatroom(usr_id1, rm_id1)
 get_all_members_chatroom(usr_id4, rm_id2)
 
-leave_all_members_chatroom(usr_id1, rm_id1)
+# leave_all_members_chatroom(usr_id1, rm_id1)
 
 
