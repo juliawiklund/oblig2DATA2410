@@ -248,10 +248,11 @@ def recieve_unread_messages(user_id, room_id):  # /api/room/<int:room_id>/<int:u
     response = requests.get(f"{BASE}{room}{room_id}/{user_id}/messages")
     messages = response.json()
     i = 0
-    for i, msg in enumerate(messages['messages']):
+    for msg in messages:
         global last_msg_index
         if msg is not None and msg['user_id'] != user_id and i > last_msg_index:
             format_and_print_msg(msg)  # printing new messages from other users if index is bigger than last time
+        i = i+1
     last_msg_index = i
 
 

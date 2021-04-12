@@ -91,8 +91,12 @@ class Message2(Resource):
     def get(self, room_id, user_id):
         room_abort_not_exist(room_id)
         user_not_exist_abort(user_id)
+        message_list = []
+        for m in messages['messages']:
+            if m['room_id'] == room_id:
+                message_list.append(m)
         #  abort_if_not_member(room_id, user_id)
-        return messages, 200
+        return message_list, 200
 
     def post(self, room_id, user_id):
         room_abort_not_exist(room_id)
@@ -216,7 +220,7 @@ class Members(Resource):  # /api/room/<room-id>/members
 api.add_resource(Members, "/api/room/<int:room_id>/members")
 
 # ########################## SOCKETS ################################
-'''
+
 socketRunning = True
 serverSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 port = 2345
@@ -234,6 +238,6 @@ while socketRunning:
     for client in connectedClients:
         client.close()
     socketRunning = False
-'''
+
 if __name__ == "__main__":
-    app.run(debug=True)  # change debug when when we're not testing anymore
+    app.run()  # change debug when when we're not testing anymore
