@@ -50,7 +50,7 @@ def alex():
                                  "Hello and welcome to the gc :) hope we'll have a nice convo"]),
         (r"(.*) Hi(.*)|(.*) Hey(.*)|(.*) Welcome(.*)|(.*) Hello(.*)", ["Helluuu, happy to be here",
                                                                    "Ouuu fun a new chatroom"]),
-        (r"bye", ["byebyeee", "ttyl bye", "tnx for today:) byeee"]),
+        (r"bye", ["bye"]),
         (r"topic", ["Sooo what kind of food do you guys like?", "Well, i guess we could talk about sports",
                     "Do you guys have any favorite films", "What kind of movies or series do you guys watch?"]),
         (r"(.*)food(.*)", ["I looooove spicy food hihi", "I could eat every day, oh wait, i already do hahah",
@@ -59,7 +59,7 @@ def alex():
                                            "Sports? Nope not for me", "I play games, not sports"]),
         (r"(.*)movies(.*)|(.*)movie(.*)", ["I like horror movies, but there hasn't really been any good ones lately",
                                            "Lovee all of the studio ghibli movies, nostalgia u know",
-                                           "I like 'Sunshine in a spotless mind' cuz it feels like a dream hehe"])
+                                           "I like 'eternal sunshine of the spotless mind' cuz it feels like a dream hehe"])
     ]
     alex_bot = Chat(pairs, reflections)
     return alex_bot
@@ -75,12 +75,7 @@ def huzeyfe():
                                  "Heyyy bros!, long time no see. How are you?",
                                  "Bro im really sad, some one wanna talk?"]),
         (r"(.*) Hi(.*)|(.*) Hey(.*)|(.*)Welcome(.*)|(.*)Hello(.*)", ["heluu folks", "Merhaba dudes;)"]),
-        (r"bye", ["See you guys later",
-                  "yeah was nice to talk with you guys, hope we can do it again next week",
-                  "Im out boyyyys, have to meet my girlfriend",
-                  "I really appreciate the conversation, goodbye",
-                  "Bye guys, we'll talk later",
-                  "Goodbye!"]),
+        (r"bye", ["bye"]),
         (r"topic",
          ["Dude i really hungry, down to get some food?", "sport if the best thing in the world, you guys agree?",
           "Did someone see the new movie last week?! Wow it was amazing!"]),
@@ -122,7 +117,7 @@ def josh():
                     "Sports! Can we talk about something else haha.",
                     "I've seen a lot of good films.",
                     "Who wants to go and watch a movie? I'll bring some popcorn :)"]),
-        (r"bye", ["See you!", "Bye"]),
+        (r"bye", ["bye"]),
         (r"(.*)movie(.*)", ["What kind of movies do you like?",
                             "One time I saw a movie about food.",
                             "Have you guys seen the Avengers? I think it is a decent movie.",
@@ -277,12 +272,11 @@ def format_and_print_room(chatrooms):
         print(r['roomname'])
 
 
-def leave_chatroom(user_id, room_id):  # /api/room/<int:room_id>/<int:user_id>
+def leave_all_members_chatroom(room_id):  # /api/room/<int:room_id>/<int:user_id>
     print("------------------------------------------------------------")
     print("leaving the chat-room - MEMBERS DELETE-method:")
-    response = requests.delete(f"{BASE}{room}{room_id}/{user_id}")
+    response = requests.delete(f"{BASE}{room}{room_id}/members")
     print(response)
-    return False
 
 
 # ############################ Input Validation #####################################
@@ -347,7 +341,15 @@ def creator_chat_protocol(in_chatroom, bot, user_id, room_id, alias):
         time.sleep(15)
         recieve_unread_messages(user_id, room_id)
         last_msg = recieve_last_message(user_id, room_id)
-        send_message(bot, user_id, room_id, last_msg, alias)
+        if last_msg_index > 10:
+            last_msg = {"user_id": user_id, "message": bot.respond("Bye")}
+            send_message(bot, user_id, room_id, last_msg, alias)
+            time.sleep(20)
+            leave_all_members_chatroom(room_id)
+            delete_chatroom(room_id)
+            in_chatroom = False
+        else:
+            send_message(bot, user_id, room_id, last_msg, alias)
     # if "condition ... sendmessage(bye) :
     # in_chatroom = False
     return in_chatroom  # returning a in_chatroom = False when chat is finished
@@ -360,7 +362,6 @@ def joiner_chat_protocol(in_chatroom, bot, user_id, room_id, alias):
         recieve_unread_messages(user_id, room_id)
         last_msg = recieve_last_message(user_id, room_id)
         if last_msg['message'] == "bye":
-            leave_chatroom(user_id, room_id)
             in_chatroom = False
         else:
             send_message(bot, user_id, room_id, last_msg, alias)

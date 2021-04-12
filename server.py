@@ -82,7 +82,7 @@ class Message(Resource):
             if message['room_id'] == room_id:
                 all_messages_in_room.append(message)
 
-        last_index = len(all_messages_in_room)-1
+        last_index = len(all_messages_in_room) - 1
         last_message = all_messages_in_room[last_index]
         return last_message, 200
 
@@ -132,8 +132,6 @@ class Room(Resource):
         return rooms[room_id], 200
 
     def delete(self, room_id):  # check if creator is the only member in members before deleting
-        args = user_id_check.parse_args()
-        user_not_exist_abort(args['user_id'])
         room_abort_not_exist(room_id)
         del rooms['rooms'][room_id]
         return "Room deleted", 204
@@ -202,6 +200,12 @@ class Members(Resource):  # /api/room/<room-id>/members
         members['members'].append(args)
         return index, 201
 
+    def delete(self, room_id):
+        room_abort_not_exist(room_id)
+        for i, m in enumerate(members['members']):
+            del members['members'][i]
+        return "Members removed", 204
+
 
 api.add_resource(Members, "/api/room/<int:room_id>/members")
 
@@ -212,7 +216,7 @@ serverSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 port = 2345
 ip = "localhost"
 serverSocket.bind((ip, port))
-serverSocket.listen(4)
+serverSocket.listen()
 room_size = 1
 
 while socketRunning:
