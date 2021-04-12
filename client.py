@@ -79,7 +79,7 @@ def huzeyfe():
                   "I really appreciate the conversation, goodbye",
                   "Bye guys, we'll talk later",
                   "Goodbye!"]),
-        (r"topic", ["Dude i really hungry, down to get some food?", "sport if the best thing in the world, you guys agree?",
+        (r"topic", ["Dude im really hungry, down to get some food?", "sport if the best thing in the world, you guys agree?",
         "Did someone see the new movie last week?! Wow it was amazing!"]),
         (r"(.*)food(.*)", ["Bro cant you see that I love food? Like look at me dude!",
                            "I can really eat everything, it's starting to get a big problem",
