@@ -76,7 +76,7 @@ def huzeyfe():
         (r"start conversation", ["Welcome to the gaming universe guys:)",
                                  "Heyyy bros!, long time no see. How are you?",
                                  "Bro im really sad, some one wanna talk?"]),
-        (r"(.*) Hi(.*)|(.*) Hey(.*)|(.*)Welcome(.*)|(.*)Hello(.*)", ["heluu folks", "Merhaba dudes;)"]),
+        (r"(.*) Hi (.*)|(.*) Hey (.*)|(.*)Welcome(.*)|(.*)Hello(.*)", ["heluu folks", "Merhaba dudes;)"]),
         (r"bye", ["bye"]),
         (r"topic",
          ["Dude i really hungry, down to get some food?", "sport if the best thing in the world, you guys agree?",
