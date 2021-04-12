@@ -117,7 +117,7 @@ def josh():
                                  "Hey wanna watch a movie?",
                                  "Yo! Let's get some food.",
                                  "Hey, I'm going outside to play some sports. Do you guys want to join?"]),
-        ("r(*) Hi (*)", ["Hey sport", "Hi, Food?"]),
+        ("r(.*) Hi (.*)", ["Hey sport", "Hi, Food?"]),
         (r"topic", ["Are you guys hungry? Let's go get some food!",
                     "Sports! Can we talk about something else haha.",
                     "I've seen a lot of good films.",
