@@ -28,9 +28,11 @@ def julia():
                             "I'm into dancing, guess it's not a sport really but Chicago-footwork jams and battles"
                             "looks sporty to me, haha."]),
         (r"(.*)film(.*)|(.*)movie(.*)", ["I've been re-watching Matrix every break since first year of uni, the first "
-                                         "one is simply "
-                           " great. It's therefore a freaking mystery how the other two got so incredibly bad??",
-                           "Have anyone watched Brave New World? The tv-series on HBO, based on Alons Huxley "]),
+                                         "one is simply great. It's therefore a freaking mystery how the other two "
+                                         "got so incredibly bad??",
+                                         "Have anyone watched Brave New World? The tv-series on HBO, based on Aldous "
+                                         "Huxley sci-fi novel from 1932. I'm not sure if I should get HBO "
+                                         "subscription or not"]),
     ]
     chatbot = Chat(pairs, reflections)
     return chatbot
@@ -113,6 +115,7 @@ def josh():
     ]
     chatbot = Chat(pairs, reflections)
     return chatbot
+
 
 # ################################### Routes ####################################
 
