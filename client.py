@@ -29,8 +29,8 @@ def julia():
                             "looks sporty to me, haha."]),
         (r"(.*)film(.*)|(.*)movie(.*)", ["I've been re-watching Matrix every break since first year of uni, the first "
                                          "one is simply "
-                           " great. It's therefore a freaking mystery how the other two got so incredibly bad??",
-                           "Have anyone watched Brave New World? The tv-series on HBO, based on Alons Huxley "]),
+                                         " great. It's therefore a freaking mystery how the other two got so incredibly bad??",
+                                         "Have anyone watched Brave New World? The tv-series on HBO, based on Alons Huxley "]),
     ]
     chatbot = Chat(pairs, reflections)
     return chatbot
@@ -48,14 +48,16 @@ def alex():
         (r"(.*)Hi(.*)|(.*)Hey(.*)|(.*)Welcome(.*)|(.*)Hello(.*)", ["Helluuu, happy to be here",
                                                                    "Ouuu fun a new chatroom"]),
         (r"bye", ["byebyeee", "ttyl bye", "tnx for today:) byeee"]),
-        (r"topic", ["food", "sport", "film", "movies"]),
+        (r"topic", ["Sooo what do you think about food guys?", "Well, i guess we can talk about sport",
+                    "Do you have a favorie film?", "Lets talk about movies, what do you guys like?"]),
         (r"(.*)food(.*)", ["I looooove spicy food hihi", "I could eat every day, oh wait, i already do hahah",
                            "I love to make food, i also like baking, but i dont like pastries so not a good combo"]),
         (r"(.*)sport(.*)|(.*)sports(.*)", ["Ehheh I dont really watch or play any sports anymore",
                                            "Sports? Nope not for me", "I play games, not sports"]),
-        (r"(.*)movies(.*)|(.*)movie(.*)", ["I like horror movies, but there hasn't really been any good ones lately",
-                                           "Lovee all of the studio ghibli movies, nostalgia u know",
-                                           "I like 'Sunshine in a spotless mind' cuz it feels like a dream hehe"]),
+        (r"(.*)movies(.*)|(.*)movie(.*)|(.*)film(.*)",
+         ["I like horror movies, but there hasn't really been any good ones lately",
+          "Lovee all of the studio ghibli movies, nostalgia u know",
+          "I like 'Sunshine in a spotless mind' cuz it feels like a dream hehe"]),
         (r"(.*)", ["I dont know how to respond to that"])
     ]
     alex_bot = Chat(pairs, reflections)
@@ -115,6 +117,7 @@ def josh():
     ]
     chatbot = Chat(pairs, reflections)
     return chatbot
+
 
 # ################################### Routes ####################################
 
