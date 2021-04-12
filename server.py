@@ -117,15 +117,19 @@ global roomsCounter
 roomsCounter = 0
 
 rooms_post = reqparse.RequestParser()
+rooms_post.add_argument('room_id', type=int, required=False)
 rooms_post.add_argument('roomname', type=str, required=True, help='A name for your chat room')
 rooms_post.add_argument('creator', type=int, required=True, help='The user id of the creator is required')
 rooms_post.add_argument('password', type=str, help='Optional password if you dont want just anyone to join')
 
 
 def room_abort_not_exist(room_id):
-    if 0 <= room_id < len(rooms['rooms']):
-        if rooms['rooms'][room_id] is None:
-            return abort(404, message="Chatroom not found")
+    if 0 <= room_id:
+        for room in rooms['rooms']:
+            if room.room_id == room_id:
+                return
+        return abort(404, message="Chatroom not found")
+    return abort(410, messages="No existing rooms")
 
 
 class Room(Resource):
@@ -139,13 +143,15 @@ class Room(Resource):
         user_id = args['user_id']
         user_not_exist_abort(user_id)
         room_abort_not_exist(room_id)
-        del rooms['rooms'][room_id]
-        return "Room deleted", 204
+        for i, r in enumerate(rooms['rooms']):
+            if r.room_id == room_id and r.creator == user_id:
+                rooms['rooms'].pop(i)
+                return '', 204
 
 
 class Rooms(Resource):  # "/api/rooms, { json }
 
-    def get(self):  # get all chatrooms
+    def get(self):                                      # get all chatrooms
         args = user_id_check.parse_args()
         user_not_exist_abort(args['user_id'])
         if len(rooms) == 0:
@@ -159,6 +165,7 @@ class Rooms(Resource):  # "/api/rooms, { json }
             global roomsCounter
             index = roomsCounter
             roomsCounter += 1
+            args['room_id'] = index
             rooms['rooms'].append(args)
             return index, 201
 
@@ -214,10 +221,14 @@ class Members(Resource):  # /api/room/<room-id>/members
         return index, 201
 
     def delete(self, room_id):  # members delete tar inn
+        args = request.get_json()
+        user_id = args['user_id']
+        user_not_exist_abort(user_id)
         room_abort_not_exist(room_id)
         for i, m in enumerate(members['members']):
-            del members['members'][i]
-        return "Members removed", 204
+            if m.room_id == room_id:
+                members['members'].pop(i)
+                return '', 204
 
 
 api.add_resource(Members, "/api/room/<int:room_id>/members")

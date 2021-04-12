@@ -190,9 +190,7 @@ def get_all_chatrooms(user_id):  # /api/rooms
     print("getting all chat rooms - ROOMS GET-method:")
     response = requests.get(f"{BASE}{rooms}", user_json)
     all_chatrooms = response.json()
-    #  format_and_print_room(all_chatrooms)
     return all_chatrooms
-
 
 # A method to choose randomly out of the given room indexes (If we'll implement bots choosing rooms automatically).
 def choose_room(room_list):
@@ -209,7 +207,6 @@ def join_chatroom(user_id, room_id):  # /api/room/<int:room_id>/users
 
 
 def find_room_id_for_roomname(roomname, all_rooms):
-    #  all_rooms = get_all_chatrooms(user_id)
     for index, r in enumerate(all_rooms['rooms']):
         if r['roomname'] == roomname:
             return index
@@ -219,8 +216,7 @@ def find_room_id_for_roomname(roomname, all_rooms):
 def delete_chatroom(user_id, room_id):  # /api/room/<int:room_id>
     print("------------------------------------------------------------")
     print("creator of chat-room closing it - ROOMS DELETE-method:")
-    response = requests.delete(
-        f"{BASE}{room}{room_id}", json={'user_id': user_id})  # (make sure to somehow verify it's the creator of the room calling this method)
+    response = requests.delete(f"{BASE}{room}{room_id}", json={'user_id': user_id})
     print(f"room nr {room_id} deleted: {response}")
 
 
@@ -277,11 +273,11 @@ def format_and_print_room(chatrooms):
         print(r['roomname'])
 
 
-def leave_all_members_chatroom(room_id):  # /api/room/<int:room_id>/<int:user_id>
+def leave_all_members_chatroom(user_id, room_id):  # /api/room/<int:room_id>/<int:user_id>
     print("------------------------------------------------------------")
     print("leaving the chat-room - MEMBERS DELETE-method:")
-    response = requests.delete(f"{BASE}{room}{room_id}/members")
-    print(response)
+    response = requests.delete(f"{BASE}{room}{room_id}/members", json={"user_id": user_id})
+    print(f"members in room: {room_id} deleted {response}")
 
 
 # ############################ Input Validation #####################################
@@ -313,8 +309,8 @@ def choose_bot():
 def create_or_join_room(bot, user_id):
     # check if there are any available rooms to actually join before offering it.
 
-    rooms = get_all_chatrooms(user_id)
-    if len(rooms['rooms']) < 1:
+    all_rooms = get_all_chatrooms(user_id)
+    if len(all_rooms['rooms']) < 1:
         print("Would you like to create a room? (Yes/No")
         response = input(">")
         if response.lower() == "yes":
@@ -344,7 +340,9 @@ def validation_roomname(user_id):
         print("Which chatroom would you like to join? Type: <room name>")
         format_and_print_room(all_rooms)
         roomname = input(">")
-        room_id = find_room_id_for_roomname(roomname, all_rooms)
+        for r in all_rooms['rooms']:
+            if r['roomname'] == roomname:
+                room_id = r['room_id']
         if room_id == -1 or room_id is None:
             print("Invalid room name. Try again.")
     return room_id
@@ -361,8 +359,8 @@ def creator_chat_protocol(in_chatroom, bot, user_id, room_id, alias):
             last_msg = {"user_id": user_id, "message": bot.respond("Bye")}
             send_message(bot, user_id, room_id, last_msg, alias)
             time.sleep(10)
+            leave_all_members_chatroom(user_id, room_id)
             delete_chatroom(user_id, room_id)
-            leave_all_members_chatroom(room_id)
             in_chatroom = False
         else:
             send_message(bot, user_id, room_id, last_msg, alias)
@@ -375,6 +373,7 @@ def creator_chat_protocol(in_chatroom, bot, user_id, room_id, alias):
 
 def joiner_chat_protocol(in_chatroom, bot, user_id, room_id, alias):
     while in_chatroom:
+        time.sleep(10)
         recieve_unread_messages(user_id, room_id)
         last_msg = recieve_last_message(user_id, room_id)
         if last_msg['message'] == "bye":
@@ -383,7 +382,6 @@ def joiner_chat_protocol(in_chatroom, bot, user_id, room_id, alias):
             in_chatroom = False
         else:
             send_message(bot, user_id, room_id, last_msg, alias)
-            time.sleep(15)
     return in_chatroom
 
 
