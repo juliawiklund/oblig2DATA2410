@@ -79,8 +79,9 @@ def huzeyfe():
                   "I really appreciate the conversation, goodbye",
                   "Bye guys, we'll talk later",
                   "Goodbye!"]),
-        (r"topic", ["Dude i really hungry, down to get some food?", "sport if the best thing in the world, you guys agree?",
-        "Did someone see the new movie last week?! Wow it was amazing!"]),
+        (r"topic",
+         ["Dude i really hungry, down to get some food?", "sport if the best thing in the world, you guys agree?",
+          "Did someone see the new movie last week?! Wow it was amazing!"]),
         (r"(.*)food(.*)", ["Bro cant you see that I love food? Like look at me dude!",
                            "I can really eat everything, it's starting to get a big problem",
                            "I'm not a big fan of proper food, but I can eat snacks anytime",
@@ -105,9 +106,9 @@ def huzeyfe():
 
 def josh():
     pairs = [
-        (r"username", "josh"),
+        (r"username", ["josh"]),
         (r"alias", ["josh1405", "josh"]),
-        (r"password", "josh123"),
+        (r"password", ["josh123"]),
         (r"roomname", ["josh_chatroom", "Movies"]),
         (r"start conversation", ["Hello, what's up?", "Hi guys!",
                                  "Hey wanna watch a movie?",
@@ -122,14 +123,14 @@ def josh():
                             "One time I saw a movie about food.",
                             "Have you guys seen the Avengers? I think it is a decent movie.",
                             "Do you guys have Netflix? There ara a lot of movies there"]),
-        (r"(*)sport(*)", ["I'm not keen on playing sports.",
-                          "Whaaaat sports, Not interested haha.",
-                          "Did you know I was in a basketball team when I was 13 years old?",
-                          "My cousins love to watch sports"]),
-        (r"(*)food(*)", ["I love making food.",
-                         "My favorite food is pasta. And I also like making them",
-                         "I love to bake different kinds of pastries",
-                         "Have you tried the food at the restaurant at the seaside"])
+        (r"(.*)sport(.*)", ["I'm not keen on playing sports.",
+                            "Whaaaat sports, Not interested haha.",
+                            "Did you know I was in a basketball team when I was 13 years old?",
+                            "My cousins love to watch sports"]),
+        (r"(.*)food(.*)", ["I love making food.",
+                           "My favorite food is pasta. And I also like making them",
+                           "I love to bake different kinds of pastries",
+                           "Have you tried the food at the restaurant at the seaside"])
     ]
     chatbot = Chat(pairs, reflections)
     return chatbot
