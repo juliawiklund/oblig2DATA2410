@@ -216,11 +216,11 @@ def find_room_id_for_roomname(roomname, all_rooms):
     return -1
 
 
-def delete_chatroom(room_id):  # /api/room/<int:room_id>
+def delete_chatroom(user_id, room_id):  # /api/room/<int:room_id>
     print("------------------------------------------------------------")
     print("creator of chat-room closing it - ROOMS DELETE-method:")
     response = requests.delete(
-        f"{BASE}{room}{room_id}")  # (make sure to somehow verify it's the creator of the room calling this method)
+        f"{BASE}{room}{room_id}", json={'user_id': user_id})  # (make sure to somehow verify it's the creator of the room calling this method)
     print(f"room nr {room_id} deleted: {response}")
 
 
@@ -312,18 +312,29 @@ def choose_bot():
 
 def create_or_join_room(bot, user_id):
     # check if there are any available rooms to actually join before offering it.
-    print("Would you like to create or join an existing chatroom? Type: (create/join)")
-    response = input(">")
-    if response == "create":
-        room_ID = create_chatroom(bot, user_id)
-        return room_ID, True
-    elif response == "join":
-        room_id = validation_roomname(user_id)
-        print(f"room ID for choosen room: {room_id}")
-        return room_id, False
+
+    rooms = get_all_chatrooms(user_id)
+    if len(rooms['rooms']) < 1:
+        print("Would you like to create a room? (Yes/No")
+        response = input(">")
+        if response.lower() == "yes":
+            room_ID = create_chatroom(bot, user_id)
+            return room_ID, True
+        else:
+            create_or_join_room(bot, user_id)
     else:
-        print("Invalid answer, please try again")
-        create_or_join_room(bot, user_id)
+        print("Would you like to create or join an existing chatroom? Type: (create/join)")
+        response = input(">")
+        if response == "create":
+            room_ID = create_chatroom(bot, user_id)
+            return room_ID, True
+        elif response == "join":
+            room_id = validation_roomname(user_id)
+            print(f"room ID for choosen room: {room_id}")
+            return room_id, False
+        else:
+            print("Invalid answer, please try again")
+            create_or_join_room(bot, user_id)
 
 
 def validation_roomname(user_id):
@@ -349,9 +360,9 @@ def creator_chat_protocol(in_chatroom, bot, user_id, room_id, alias):
         if last_msg_index > 10:
             last_msg = {"user_id": user_id, "message": bot.respond("Bye")}
             send_message(bot, user_id, room_id, last_msg, alias)
-            time.sleep(20)
+            time.sleep(10)
+            delete_chatroom(user_id, room_id)
             leave_all_members_chatroom(room_id)
-            delete_chatroom(room_id)
             in_chatroom = False
         else:
             send_message(bot, user_id, room_id, last_msg, alias)

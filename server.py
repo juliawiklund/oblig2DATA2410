@@ -135,6 +135,9 @@ class Room(Resource):
         return rooms[room_id], 200
 
     def delete(self, room_id):  # check if creator is the only member in members before deleting
+        args = request.get_json()
+        user_id = args['user_id']
+        user_not_exist_abort(user_id)
         room_abort_not_exist(room_id)
         del rooms['rooms'][room_id]
         return "Room deleted", 204
@@ -210,7 +213,7 @@ class Members(Resource):  # /api/room/<room-id>/members
         members['members'].append(args)
         return index, 201
 
-    def delete(self, room_id):
+    def delete(self, room_id):  # members delete tar inn
         room_abort_not_exist(room_id)
         for i, m in enumerate(members['members']):
             del members['members'][i]
