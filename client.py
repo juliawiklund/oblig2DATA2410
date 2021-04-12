@@ -58,8 +58,7 @@ def alex():
                                            "Sports? Nope not for me", "I play games, not sports"]),
         (r"(.*)movies(.*)|(.*)movie(.*)", ["I like horror movies, but there hasn't really been any good ones lately",
                                            "Lovee all of the studio ghibli movies, nostalgia u know",
-                                           "I like 'Sunshine in a spotless mind' cuz it feels like a dream hehe"]),
-        (r"(.*)", ["I dont know how to respond to that"])
+                                           "I like 'Sunshine in a spotless mind' cuz it feels like a dream hehe"])
     ]
     alex_bot = Chat(pairs, reflections)
     return alex_bot
