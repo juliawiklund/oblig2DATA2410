@@ -81,7 +81,6 @@ class Message(Resource):
         for message in all_messages:
             if message['room_id'] == room_id:
                 all_messages_in_room.append(message)
-
         last_index = len(all_messages_in_room) - 1
         last_message = all_messages_in_room[last_index]
         return last_message, 200
@@ -171,8 +170,9 @@ def member_abort_does_exist(user_id):  # abort if the user is already added to t
 
 
 def abort_if_not_member(room_id, user_id):
-    if members['members']['room_id'] != room_id and members['members']['user_id'] != user_id:
-        return abort(404, message="You do not have access to the messages")
+    if members['members']['user_id'] == user_id and members['members']['room_id'] == room_id:
+        return
+    return abort(404, message="You do not have access to the messages")
 
 
 member_post = reqparse.RequestParser()
@@ -182,9 +182,15 @@ member_post.add_argument('user_id', type=int, required=True, help='User ID is re
 
 class Members(Resource):  # /api/room/<room-id>/members
     def get(self, room_id):  # GET ALL members in the room
-        # if USER ID exist - use the parser
+        args = user_id_check.parse_args()
+        user_not_exist_abort(args['user_id'])
         room_abort_not_exist(room_id)
-        return members
+        #   abort_if_not_member(room_id, args['user_id'])
+        room_members = []
+        for m in members['members']:
+            if m['room_id'] == room_id:
+                room_members.append(m)
+        return room_members, 200
 
     def post(self, room_id):  # ADD a user to the room
         args = member_post.parse_args()
@@ -210,7 +216,7 @@ class Members(Resource):  # /api/room/<room-id>/members
 api.add_resource(Members, "/api/room/<int:room_id>/members")
 
 # ########################## SOCKETS ################################
-
+'''
 socketRunning = True
 serverSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 port = 2345
@@ -228,6 +234,6 @@ while socketRunning:
     for client in connectedClients:
         client.close()
     socketRunning = False
-
+'''
 if __name__ == "__main__":
-    app.run()  # change debug when when we're not testing anymore
+    app.run(debug=True)  # change debug when when we're not testing anymore
