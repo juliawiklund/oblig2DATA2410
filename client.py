@@ -117,23 +117,33 @@ def josh():
                                  "Hey wanna watch a movie?",
                                  "Yo! Let's get some food.",
                                  "Hey, I'm going outside to play some sports. Do you guys want to join?"]),
+        ("r(*) Hi (*)", ["Hey sport", "Hi, Food?"]),
         (r"topic", ["Are you guys hungry? Let's go get some food!",
-                    "Sports! Can we talk about something else haha",
+                    "Sports! Can we talk about something else haha.",
                     "I've seen a lot of good films.",
                     "Who wants to go and watch a movie? I'll bring some popcorn :)"]),
         (r"bye", ["See you!", "Bye"]),
         (r"(.*)movie(.*)", ["What kind of movies do you like?",
                             "One time I saw a movie about food.",
                             "Have you guys seen the Avengers? I think it is a decent movie.",
-                            "Do you guys have Netflix? There ara a lot of movies there"]),
+                            "Do you guys have Netflix? There ara a lot of movies there", ]),
         (r"(.*)sport(.*)", ["I'm not keen on playing sports.",
-                            "Whaaaat sports, Not interested haha.",
+                            "Whaaaat sports, Not interested haha. How about movies?",
                             "Did you know I was in a basketball team when I was 13 years old?",
                             "My cousins love to watch sports"]),
+        (r"(.*)volleyball", ["I had that at P.E. in high school. It was fun. Although whenever I get to serve it "
+                             "lowkey "
+                             "hurts haha."]),
+        (r"(.*)dancing", ["I'm not reaaly good at dancing haha. My friend make fun of me whenever I try to dance :P",
+                          "I tried to do tiktok dances but it didn't workout haha. I looked like a stick trying to "
+                          "dance. "
+                          "rip"]),
+        (r"(.*)not sports", ["Me too. ", "Saaaaammmme"]),
         (r"(.*)food(.*)", ["I love making food.",
                            "My favorite food is pasta. And I also like making them",
                            "I love to bake different kinds of pastries",
-                           "Have you tried the food at the restaurant at the seaside"])
+                           "Have you tried the food at the restaurant at the seaside",
+                           "I saw this nice movie about food."])
     ]
     chatbot = Chat(pairs, reflections)
     return chatbot
