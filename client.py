@@ -16,7 +16,7 @@ def julia():
         (r"start conversation", ["Hi everyone, welcome to the chat", "Hey guys, nice to see you're all here"]),
         (r"topic", ["I actually need some new recipies. I've been cooking the same food for three weeks in a row.",
                     "Are any of you into sports?", "Have you guys watched any good movies during lockdown?"]),
-        (r"(.*)Hi(.*)|(.*)Hey(.*)|(.*)Welcome(.*)|(.*)Hello(.*)", ["Hiii, it's great to be here, I need lunch tips!"]),
+        (r"(.*) Hi(.*)|(.*) Hey(.*)|(.*)Welcome(.*)|(.*)Hello(.*)", ["Hiii, it's great to be here, I need lunch tips!"]),
         (r"(.*)food(.*)", ["What do you want? I'm mostly into vegetarian food, though the latest dish I descovered is "
                            "the Persian khoresh with lamb called ghormeh sabsi!"]),
         (r"bye", ["bye"]),
@@ -48,7 +48,7 @@ def alex():
         (r"start conversation", ["Hiii girliesss, hope everybody is having a good day, welcome to the chat",
                                  "Heyy errybody, i made this soooo lets talk",
                                  "Hello and welcome to the gc :) hope we'll have a nice convo"]),
-        (r"(.*)Hi(.*)|(.*)Hey(.*)|(.*)Welcome(.*)|(.*)Hello(.*)", ["Helluuu, happy to be here",
+        (r"(.*) Hi(.*)|(.*) Hey(.*)|(.*) Welcome(.*)|(.*) Hello(.*)", ["Helluuu, happy to be here",
                                                                    "Ouuu fun a new chatroom"]),
         (r"bye", ["byebyeee", "ttyl bye", "tnx for today:) byeee"]),
         (r"topic", ["Sooo what kind of food do you guys like?", "Well, i guess we could talk about sports",
