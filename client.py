@@ -12,9 +12,9 @@ def julia():
         (r"username", ["julia"]),
         (r"alias", ["jullz", "wiklund", "j****w"]),
         (r"password", ["julia123", "wiklund456"]),
-        (r"roomname", ["oblig2chatt", "olafiaklinikken"]),
+        (r"roomname", ["olafiaklinikken", "snacks", "Hogwarts"]),
         (r"start conversation", ["Hi everyone, welcome to the chat", "Hey guys, nice to see you're all here"]),
-        (r"choose rooom (.*)", ["0", "1", "2", "3"]),
+        (r"topic", ["food", "sport", "film", "movies"]),
         (r"(.*)Hi(.*)|(.*)Hey(.*)|(.*)Welcome(.*)|(.*)Hello(.*)", ["Hiii, it's great to be here, I need lunch tips!"]),
         (r"(.*)food(.*)", ["What do you want? I'm mostly into vegetarian food, though the latest dish I descovered is "
                            "the Persian khoresh with lamb called ghormeh sabsi!"]),
@@ -26,7 +26,11 @@ def julia():
                             "Hmm, I used to play soccer, volleyball and badminton. All awesome sports but I honestly "
                             "never prioritize playing anymore, now it's just random the few times I get to play.",
                             "I'm into dancing, guess it's not a sport really but Chicago-footwork jams and battles"
-                            "looks sporty to me, haha."])
+                            "looks sporty to me, haha."]),
+        (r"(.*)film(.*)|(.*)movie(.*)", ["I've been re-watching Matrix every break since first year of uni, the first "
+                                         "one is simply "
+                           " great. It's therefore a freaking mystery how the other two got so incredibly bad??",
+                           "Have anyone watched Brave New World? The tv-series on HBO, based on Alons Huxley "]),
     ]
     chatbot = Chat(pairs, reflections)
     return chatbot
@@ -44,6 +48,7 @@ def alex():
         (r"(.*)Hi(.*)|(.*)Hey(.*)|(.*)Welcome(.*)|(.*)Hello(.*)", ["Helluuu, happy to be here",
                                                                    "Ouuu fun a new chatroom"]),
         (r"bye", ["byebyeee", "ttyl bye", "tnx for today:) byeee"]),
+        (r"topic", ["food", "sport", "film", "movies"]),
         (r"(.*)food(.*)", ["I looooove spicy food hihi", "I could eat every day, oh wait, i already do hahah",
                            "I love to make food, i also like baking, but i dont like pastries so not a good combo"]),
         (r"(.*)sport(.*)|(.*)sports(.*)", ["Ehheh I dont really watch or play any sports anymore",
@@ -72,6 +77,7 @@ def huzeyfe():
                   "I really appreciate the conversation, goodbye",
                   "Bye guys, we'll talk later",
                   "Goodbye!"]),
+        (r"topic", ["food", "sport", "film", "movies"]),
         (r"(.*)food(.*)", ["Bro cant you see that I love food? Like look at me dude!",
                            "I can really eat everything, it's starting to get a big problem",
                            "I'm not a big fan of proper food, but I can eat snacks anytime",
@@ -101,33 +107,27 @@ def josh():
         (r"password", "josh123"),
         (r"roomname", ["josh_chatroom", "Movies"]),
         (r"start conversation", ["Hello, what's up?", "Hi guys!"]),
+        (r"topic", ["food", "sport", "film", "movies"]),
         (r"bye", ["See you!", "Bye"]),
         (r"(.*)movie(.*)", ["What kind of movies do you like?", "One time I saw a movie about food."]),
     ]
     chatbot = Chat(pairs, reflections)
     return chatbot
 
-
-# ################################### EXAMPLE INPUT ####################################
+# ################################### Routes ####################################
 
 BASE = "http://127.0.0.1:5000"
 user = "/api/user/"
 users = "/api/users"
-# user_id1 = 1
-# user_id2 = 2
-json_user1 = {"username": "alex", "password": "password123"}
-json_user2 = {"username": "josh", "password": "password456"}
 rooms = "/api/rooms"
 room = "/api/room/"
-msgPack = {"user_id": 1, "username": "uzi", "message": "heisann"}
-msgPack2 = {"user_id": 2, "username": "josh", "message": "heihei"}
 
 # ################################### Global Message variable ####################################
 global last_msg_index
 last_msg_index = -1
 
 
-# ################################### CLIENT METHODS ####################################
+# ################################### Client Methods ####################################
 
 
 def register_user(chatbot):  # /api/users
@@ -160,8 +160,8 @@ def get_all_chatrooms(user_id):  # /api/rooms
     return all_chatrooms
 
 
-def choose_room(
-        room_list):  # A method to choose randomly out of the given room indexes (If we'll implement bots choosing rooms automatically).
+# A method to choose randomly out of the given room indexes (If we'll implement bots choosing rooms automatically).
+def choose_room(room_list):
     last_index = len(room_list['rooms']) - 1
     room_index = random.randint(0, last_index)
     return room_index
@@ -195,16 +195,17 @@ def start_conversation(chatbot, user_id, room_id, alias):  # /api/room/<int:room
     # alias = chatbot.respond("alias")
     msg_json = {"user_id": user_id, "username": alias, "message": msg, "room_id": room_id}
     response = requests.post(f"{BASE}{room}{room_id}/{user_id}/messages", msg_json)
+    msg = response.json()
     print("------------------------------------------------------------")
     print("starting conversation in chat-room - MESSAGES2 POST-method:")
-    msg = response.json()
-    return msg
+    format_and_print_msg(msg)
 
 
 def send_message(bot, user_id, room_id, last_message, alias):
     if last_message is not None:
         bot_msg = bot.respond(last_message['message'])
-        #   username = bot.respond("alias")
+        if bot_msg is None:
+            bot_msg = bot.respond("topic")
         msg_json = {"user_id": user_id, "username": alias, "message": bot_msg, "room_id": room_id}
         response = requests.post(f"{BASE}{room}{room_id}/{user_id}/messages", msg_json)
         print("------------------------------------------------------------")
@@ -313,6 +314,8 @@ def creator_chat_protocol(in_chatroom, bot, user_id, room_id, alias):
         last_msg = recieve_last_message(user_id, room_id)
         send_message(bot, user_id, room_id, last_msg, alias)
     # if "condition ... sendmessage(bye) :
+    # in_chatroom = False
+    return in_chatroom  # returning a in_chatroom = False when chat is finished
 
 
 # ############################ Joiner of chatroom chat-Protocol #####################################
@@ -336,19 +339,20 @@ def run_client():
     clientSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     clientSocket.connect(('localhost', 2345))
 
-    # ####### Identifiers ##############
+    # ################## Identifiers #######################
     bot = choose_bot()  # choosing bot from user input
     user_id = register_user(bot)  # registering new user and receive user ID
     room_id, creator = create_or_join_room(bot, user_id)  # choosing to join/create room from user input
     alias = bot.respond("alias")
+    # ######################################################
 
     in_chatroom = True
     if creator:  # returning creator = True if a new room was created
         start_conversation(bot, user_id, room_id, alias)
-        creator_chat_protocol(in_chatroom, bot, user_id, room_id, alias)
+        in_chatroom = creator_chat_protocol(in_chatroom, bot, user_id, room_id, alias)
     if not creator:  # creator = False if the bot joined an existing room
         join_chatroom(user_id, room_id)
-       # recieve_unread_messages(user_id, room_id)  # if joining an ongoing chatt, get all messages in it
+        # recieve_unread_messages(user_id, room_id)  # if joining an ongoing chatt, get all messages in it
         in_chatroom = joiner_chat_protocol(in_chatroom, bot, user_id, room_id, alias)
     if not in_chatroom:
         clientSocket.close()
