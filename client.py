@@ -109,10 +109,24 @@ def josh():
         (r"alias", ["josh1405", "josh"]),
         (r"password", "josh123"),
         (r"roomname", ["josh_chatroom", "Movies"]),
-        (r"start conversation", ["Hello, what's up?", "Hi guys!"]),
+        (r"start conversation", ["Hello, what's up?", "Hi guys!",
+                                 "Hey wanna watch a movie?",
+                                 "Yo! Let's get some food.",
+                                 "Hey, I'm going outside to play some sports. Do you guys want to join?"]),
         (r"topic", ["food", "sport", "film", "movies"]),
         (r"bye", ["See you!", "Bye"]),
-        (r"(.*)movie(.*)", ["What kind of movies do you like?", "One time I saw a movie about food."]),
+        (r"(.*)movie(.*)", ["What kind of movies do you like?",
+                            "One time I saw a movie about food.",
+                            "Have you guys seen the Avengers? I think it is a decent movie.",
+                            "Do you guys have Netflix? There ara a lot of movies there"]),
+        (r"(*)sport(*)", ["I'm not keen on playing sports.",
+                          "Whaaaat sports, Not interested haha.",
+                          "Did you know I was in a basketball team when I was 13 years old?",
+                          "My cousins love to watch sports"]),
+        (r"(*)food(*)", ["I love making food.",
+                         "My favorite food is pasta. And I also like making them",
+                         "I love to bake different kinds of pastries"
+                         "Have you tried the food at the restaurant at the seaside"])
     ]
     chatbot = Chat(pairs, reflections)
     return chatbot
