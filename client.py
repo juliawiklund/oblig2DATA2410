@@ -14,12 +14,12 @@ def julia():
         (r"password", ["julia123", "wiklund456"]),
         (r"roomname", ["olafiaklinikken", "snacks", "Hogwarts"]),
         (r"start conversation", ["Hi everyone, welcome to the chat", "Hey guys, nice to see you're all here"]),
-        (r"topic", ["food", "sport", "film", "movies"]),
+        (r"topic", ["I actually need some new recipies. I've been cooking the same food for three weeks in a row.",
+                    "Are any of you into sports?", "Have you guys watched any good movies during lockdown?"]),
         (r"(.*)Hi(.*)|(.*)Hey(.*)|(.*)Welcome(.*)|(.*)Hello(.*)", ["Hiii, it's great to be here, I need lunch tips!"]),
         (r"(.*)food(.*)", ["What do you want? I'm mostly into vegetarian food, though the latest dish I descovered is "
                            "the Persian khoresh with lamb called ghormeh sabsi!"]),
         (r"bye", ["bye"]),
-        (r"(.*)ketchup(.*)", ["AAAH, elsker mackern", "Jeg liker friiies med ketchup"]),
         (r"(.*)sport(.*)", ["Generally I'm more into art than sport. I watched La liga in 2019 when I lived with a "
                             "couple of Spanish guys, which was awesome, but I guess I think it's more exciting to "
                             "watch when someone has a local connection to the teams.",
