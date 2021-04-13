@@ -11,7 +11,6 @@ def julia():
     pairs = [
         (r"username", ["julia"]),
         (r"alias", ["jullz", "wiklund", "j****w"]),
-        (r"password", ["julia123", "wiklund456"]),
         (r"roomname", ["olafiaklinikken", "snacks", "Hogwarts"]),
         (r"start conversation", ["Hi everyone, welcome to the chat", "Hey guys, nice to see you're all here"]),
         (r"topic", ["I actually need some new recipies. I've been cooking the same food for three weeks in a row.",
@@ -45,7 +44,6 @@ def alex():
     pairs = [
         (r"username", ["alex"]),
         (r"alias", ["alexxx", "ale", "alez"]),
-        (r"password", ["ale123", "hvordanlagermanpassord123"]),
         (r"roomname", ["datanett gc", "the gang", "cabbage"]),
         (r"start conversation", ["Hiii girliesss, hope everybody is having a good day, welcome to the chat",
                                  "Heyy errybody, i made this soooo lets talk",
@@ -71,7 +69,6 @@ def huzeyfe():
     pairs = [
         (r"username", ["Huzeyfe"]),
         (r"alias", ["uzi", "huzi", "theuzi123", "phoenix", "BigBoy2k"]),
-        (r"password", ["ilovevalorant123", "val_uzi2021", "mypass_secret"]),
         (r"roomname", ["Time for Val!", "Gaming room", "diskusjons toalett"]),
         (r"start conversation", ["Welcome to the gaming universe guys:)",
                                  "Heyyy bros!, long time no see. How are you?",
@@ -108,7 +105,6 @@ def josh():
     pairs = [
         (r"username", ["josh"]),
         (r"alias", ["josh1405", "josh"]),
-        (r"password", ["josh123"]),
         (r"roomname", ["josh_chatroom", "Movies"]),
         (r"start conversation", ["Hello, what's up?", "Hi guys!",
                                  "Hey wanna watch a movie?",
@@ -174,8 +170,8 @@ last_msg_index = -1
 # ################################### Client Methods ####################################
 
 
-def register_user(chatbot):  # /api/users
-    register = {'username': chatbot.respond('username'), 'password': chatbot.respond('password')}
+def register_user(username):  # /api/users
+    register = {'username': username}
     print("------------------------------------------------------------")
     print("register bot - USERS POST-method:")
     response = requests.post(f"{BASE}{users}", register)
@@ -309,7 +305,7 @@ def choose_bot():
         elif botname.lower() == "josh":
             chatbot = josh()
         elif botname.lower() == "user":
-            chatbot = user_defined_bot()
+            chatbot = "user"
         else:
             print("Invalid bot name. Only defined bot names are valid.")
 
@@ -320,15 +316,16 @@ def create_or_join_room(bot, user_id):
     # updating registered rooms and loops this question until the user has the choice to join a room
     creating = False
     while True:
-        while len(get_all_chatrooms(user_id)['rooms']) < 1 or creating:
-            print("Would you like to create a room? (Yes/No)")
-            response = input(">")
-            if response.lower() == "yes" or response.lower() == "y":
-                room_ID = create_chatroom(bot, user_id)
-                join_chatroom(user_id, room_ID)
-                return room_ID, True
-            else:
-                creating = False
+        if bot != "user":
+            while len(get_all_chatrooms(user_id)['rooms']) < 1 or creating:
+                print("Would you like to create a room? (Yes/No)")
+                response = input(">")
+                if response.lower() == "yes" or response.lower() == "y":
+                    room_ID = create_chatroom(bot, user_id)
+                    join_chatroom(user_id, room_ID)
+                    return room_ID, True
+                else:
+                    creating = False
         print("Would you like to join an existing chatroom? Type: (Yes/No)")
         response = input(">")
         if response.lower() == "yes" or response.lower() == "y":
@@ -399,22 +396,35 @@ def run_client():
 
     # ################## Identifiers #######################
     bot = choose_bot()  # choosing bot from user input
-    user_id = register_user(bot)  # registering new user and receive user ID
+    if bot == "user":
+        print("Type in your username:")
+        username = input(">")
+    else:
+        username = bot.respond("username")
+
+    user_id = register_user(username)  # registering new user and receive user ID
 
     bot_active = True
     while bot_active:
         room_id, creator = create_or_join_room(bot, user_id)  # choosing to join/create room from user input
-        alias = bot.respond("alias")
+        alias = None
+        if bot != "user":
+            alias = bot.respond("alias")
+
         in_chatroom = True
         if creator:  # returning creator = True if a new room was created
             while len(get_all_members_of_room(user_id, room_id)) < 2:
                 time.sleep(5)
             start_conversation(bot, user_id, room_id, alias)
             in_chatroom = creator_chat_protocol(in_chatroom, bot, user_id, room_id, alias)
-        if not creator:  # creator = False if the bot joined an existing room
+        elif not creator and bot != "user":  # creator = False if the bot joined an existing room
             join_chatroom(user_id, room_id)
             # recieve_unread_messages(user_id, room_id)  # if joining an ongoing chatt, get all messages in it
             in_chatroom = joiner_chat_protocol(in_chatroom, bot, user_id, room_id, alias)
+        else:
+            recieve_unread_messages(user_id, room_id)
+            in_chatroom = False
+
         if not in_chatroom:
             print("Do you want to exit the program? type: (Yes/No)")
             reply = input(">")

@@ -8,7 +8,6 @@ api = Api(app)
 # USER POST parser
 users_post = reqparse.RequestParser()
 users_post.add_argument('username', type=str, required=True, help="username is required")  # username
-users_post.add_argument('password', type=str, required=True, help="password is required")  # password
 
 # USER GET parser
 user_id_check = reqparse.RequestParser()
