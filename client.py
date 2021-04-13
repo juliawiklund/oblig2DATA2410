@@ -255,6 +255,14 @@ def recieve_last_message(user_id, room_id):
     return msg
 
 
+def get_all_members_of_room(user_id, room_id):
+    response = requests.get(f"{BASE}{room}{room_id}/members")
+    members = response.json()
+    print("---------------members--------------")
+    print(members)
+    return members
+
+
 def format_and_print_msg(msg):
     print(f"{msg['username']} says: {msg['message']} ")
 
@@ -309,6 +317,7 @@ def create_or_join_room(bot, user_id):
             response = input(">")
             if response.lower() == "yes" or response.lower() == "y":
                 room_ID = create_chatroom(bot, user_id)
+                join_chatroom(user_id, room_ID)
                 return room_ID, True
             else:
                 creating = False
@@ -340,7 +349,6 @@ def validation_roomname(user_id):
 # ############################ Creator of chatroom chat-Protocol #####################################
 
 def creator_chat_protocol(in_chatroom, bot, user_id, room_id, alias):
-    time.sleep(10)
     while in_chatroom:
         recieve_unread_messages(user_id, room_id)
         last_msg = recieve_last_message(user_id, room_id)
@@ -390,6 +398,9 @@ def run_client():
         alias = bot.respond("alias")
         in_chatroom = True
         if creator:  # returning creator = True if a new room was created
+            while len(get_all_members_of_room(user_id, room_id)) < 2:
+                time.sleep(5)
+                print(len(get_all_members_of_room(user_id, room_id)))
             start_conversation(bot, user_id, room_id, alias)
             in_chatroom = creator_chat_protocol(in_chatroom, bot, user_id, room_id, alias)
         if not creator:  # creator = False if the bot joined an existing room
