@@ -279,21 +279,23 @@ def user_defined_bot():  # create prompt and input validation for each post.
 
 
 def choose_bot():
-    print("Choose a chatbot ('julia', 'alex', 'huzeyfe', 'josh' or 'user')")
-    botname = input(">")
+
     chatbot = None
-    if botname == "julia":
-        chatbot = julia()
-    elif botname == "alex":
-        chatbot = alex()
-    elif botname == "huzeyfe":
-        chatbot = huzeyfe()
-    elif botname == "josh":
-        chatbot = josh()
-    elif botname == "user":
-        chatbot = user_defined_bot()
-    else:
-        print("you have to choose one of the options we defined")
+    while chatbot is None:
+        print("Choose a chatbot ('julia', 'alex', 'huzeyfe', 'josh' or 'user')")
+        botname = input(">")
+        if botname.lower() == "julia":
+            chatbot = julia()
+        elif botname.lower() == "alex":
+            chatbot = alex()
+        elif botname.lower() == "huzeyfe":
+            chatbot = huzeyfe()
+        elif botname.lower() == "josh":
+            chatbot = josh()
+        elif botname.lower() == "user":
+            chatbot = user_defined_bot()
+        else:
+            print("Invalid bot name. Only defined bot names are valid.")
 
     return chatbot
 
