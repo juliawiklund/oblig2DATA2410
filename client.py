@@ -342,7 +342,6 @@ def validation_roomname(user_id):
 def creator_chat_protocol(in_chatroom, bot, user_id, room_id, alias):
     time.sleep(10)
     while in_chatroom:
-        time.sleep(10)
         recieve_unread_messages(user_id, room_id)
         last_msg = recieve_last_message(user_id, room_id)
         if last_msg_index > 10:
