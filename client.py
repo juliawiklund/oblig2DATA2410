@@ -13,11 +13,14 @@ def julia():
         (r"start conversation", ["Hi everyone, welcome to the chat", "Hey guys, nice to see you're all here"]),
         (r"topic", ["I actually need some new recipies. I've been cooking the same food for three weeks in a row.",
                     "Are any of you into sports?", "Have you guys watched any good movies during lockdown?"]),
-        (
-            r"(.*) Hi(.*)|(.*) Hey(.*)|(.*)Welcome(.*)|(.*)Hello(.*)",
-            ["Hiii, it's great to be here, I need lunch tips!"]),
+        (r"(.*) Hi(.*)|(.*) Hey(.*)|(.*)Welcome(.*)|(.*)Hello(.*)",["Hiii, it's great to be here, I need lunch tips!"]),
         (r"(.*)food(.*)", ["What do you want? I'm mostly into vegetarian food, though the latest dish I descovered is "
-                           "the Persian khoresh with lamb called ghormeh sabsi!"]),
+                           "the Persian khoresh with lamb called ghormeh sabzi!",
+                           "I want junk!! steamed buns with crispy eggplant, mmm"]),
+        (r"(.*)cook(.*)", ["I make a killing mayonnaise, but can't cook any apart from that...",
+                           "Hmm, I can actually cook summer rolls, almost forgot"]),
+        (r"(.*)spicy(.*)", ["yeah, spicy food is really nice."]),
+        (r"(.*)pastry(.*)|(.*)pastries(.*)", ["ah, do you bake? Can you make mochi"]),
         (r"bye", ["bye"]),
         (r"(.*)sport(.*)", ["Generally I'm more into art than sport. I watched La liga in 2019 when I lived with a "
                             "couple of Spanish guys, which was awesome, but I guess I think it's more exciting to "
@@ -25,13 +28,15 @@ def julia():
                             "Hmm, I used to play soccer, volleyball and badminton. All awesome sports but I honestly "
                             "never prioritize playing anymore, now it's just random the few times I get to play.",
                             "I'm into dancing, guess it's not a sport really but Chicago-footwork jams and battles"
-                            "looks sporty to me, haha."]),
+                            "looks sporty to me, haha.", "does anyone play volleyball?"]),
+        (r"(.*)game(.*)", ["what games do you play?"]),
         (r"(.*)film(.*)|(.*)movie(.*)", ["I've been re-watching Matrix every break since first year of uni, the first "
                                          "one is simply great. It's therefore a freaking mystery how the other two "
                                          "got so incredibly bad??",
                                          "Have anyone watched Brave New World? The tv-series on HBO, based on Aldous "
                                          "Huxley sci-fi novel from 1932. I'm not sure if I should get HBO "
                                          "subscription or not"]),
+        (r"(.*)horror(.*)", ["I'm not into horror but anything else"])
     ]
     chatbot = Chat(pairs, reflections)
     return chatbot
