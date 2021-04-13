@@ -134,14 +134,16 @@ def room_abort_not_exist(room_id):
     return abort(410, messages="No existing rooms")
 
 
-class Room(Resource):
+class Room(Resource):  # "/api/room/<int:room_id>"
 
     def get(self, room_id):
         args = request.get_json()
         user_id = args['user_id']
         user_not_exist_abort(user_id)
         room_abort_not_exist(room_id)
-        return rooms[room_id], 200
+        for room in rooms['rooms']:
+            if room.room_id == room_id:
+                return room, 200
 
     def delete(self, room_id):  # check if creator is the only member in members before deleting
         args = request.get_json()
@@ -156,7 +158,7 @@ class Room(Resource):
 
 class Rooms(Resource):  # "/api/rooms, { json }
 
-    def get(self):                                      # get all chatrooms
+    def get(self):  # get all chatrooms
         args = user_id_check.parse_args()
         user_not_exist_abort(args['user_id'])
         if len(rooms) == 0:
