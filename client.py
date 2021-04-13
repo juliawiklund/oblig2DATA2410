@@ -121,7 +121,8 @@ def josh():
                     "Who wants to go and watch a movie? I'll bring some popcorn :)"]),
         (r"(.*)vegetarian food(.*)", ["Vegetarian food sounds nice. I haven't had that in a while."]),
         (r"(.*)spicy(.*)", ["I don't like spicy food, cause I have a very low tolerance on spicy things haha."]),
-        (r"(.*)dancing(.*)", ["I'm not reaaly good at dancing haha. My friend make fun of me whenever I try to dance :P",
+        (
+        r"(.*)dancing(.*)", ["I'm not reaaly good at dancing haha. My friend make fun of me whenever I try to dance :P",
                              "I tried to do tiktok dances but it didn't workout haha. I looked like a stick trying to "
                              "dance. rip"]),
         (r"(.*)volleyball(.*)", ["I had that at P.E. in high school. It was fun. Although whenever I get to serve it "
@@ -159,8 +160,6 @@ room = "/api/room/"
 # ################################### Global Message variable ####################################
 global last_msg_index
 last_msg_index = -1
-
-
 # ################################### Client Methods ####################################
 
 
@@ -192,12 +191,6 @@ def get_all_chatrooms(user_id):  # /api/rooms
     all_chatrooms = response.json()
     return all_chatrooms
 
-# A method to choose randomly out of the given room indexes (If we'll implement bots choosing rooms automatically).
-def choose_room(room_list):
-    last_index = len(room_list['rooms']) - 1
-    room_index = random.randint(0, last_index)
-    return room_index
-
 
 def join_chatroom(user_id, room_id):  # /api/room/<int:room_id>/users
     print("------------------------------------------------------------")
@@ -222,7 +215,6 @@ def delete_chatroom(user_id, room_id):  # /api/room/<int:room_id>
 
 def start_conversation(chatbot, user_id, room_id, alias):  # /api/room/<int:room_id>/<int:user_id>/messages
     msg = chatbot.respond("start conversation")
-    # alias = chatbot.respond("alias")
     msg_json = {"user_id": user_id, "username": alias, "message": msg, "room_id": room_id}
     response = requests.post(f"{BASE}{room}{room_id}/{user_id}/messages", msg_json)
     msg = response.json()
@@ -307,30 +299,25 @@ def choose_bot():
 
 
 def create_or_join_room(bot, user_id):
-    # check if there are any available rooms to actually join before offering it.
-
-    all_rooms = get_all_chatrooms(user_id)
-    if len(all_rooms['rooms']) < 1:
-        print("Would you like to create a room? (Yes/No")
+    # updating registered rooms and loops this question until the user has the choice to join a room
+    creating = False
+    while True:
+        while len(get_all_chatrooms(user_id)['rooms']) < 1 or creating:
+            print("Would you like to create a room? (Yes/No)")
+            response = input(">")
+            if response.lower() == "yes" or response.lower() == "y":
+                room_ID = create_chatroom(bot, user_id)
+                return room_ID, True
+            else:
+                creating = False
+        print("Would you like to join an existing chatroom? Type: (Yes/No)")
         response = input(">")
-        if response.lower() == "yes":
-            room_ID = create_chatroom(bot, user_id)
-            return room_ID, True
-        else:
-            create_or_join_room(bot, user_id)
-    else:
-        print("Would you like to create or join an existing chatroom? Type: (create/join)")
-        response = input(">")
-        if response == "create":
-            room_ID = create_chatroom(bot, user_id)
-            return room_ID, True
-        elif response == "join":
+        if response.lower() == "yes" or response.lower() == "y":
             room_id = validation_roomname(user_id)
             print(f"room ID for choosen room: {room_id}")
             return room_id, False
         else:
-            print("Invalid answer, please try again")
-            create_or_join_room(bot, user_id)
+            creating = True
 
 
 def validation_roomname(user_id):
@@ -351,8 +338,9 @@ def validation_roomname(user_id):
 # ############################ Creator of chatroom chat-Protocol #####################################
 
 def creator_chat_protocol(in_chatroom, bot, user_id, room_id, alias):
+    time.sleep(10)
     while in_chatroom:
-        time.sleep(15)
+        time.sleep(10)
         recieve_unread_messages(user_id, room_id)
         last_msg = recieve_last_message(user_id, room_id)
         if last_msg_index > 10:
