@@ -75,6 +75,9 @@ message_post.add_argument('room_id', type=int, required=True, help='You need a r
 class Message(Resource):
 
     def get(self, room_id):
+        args = request.get_json()
+        user_id = args['user_id']
+        user_not_exist_abort(user_id)
         room_abort_not_exist(room_id)
         all_messages = messages['messages']
         all_messages_in_room = []
@@ -135,6 +138,9 @@ def room_abort_not_exist(room_id):
 class Room(Resource):
 
     def get(self, room_id):
+        args = request.get_json()
+        user_id = args['user_id']
+        user_not_exist_abort(user_id)
         room_abort_not_exist(room_id)
         return rooms[room_id], 200
 
@@ -196,8 +202,9 @@ member_post.add_argument('user_id', type=int, required=True, help='User ID is re
 
 class Members(Resource):  # /api/room/<room-id>/members
     def get(self, room_id):  # GET ALL members in the room
-        # args = user_id_check.parse_args()
-        # user_not_exist_abort(args['user_id'])
+        args = request.get_json()
+        user_id = args['user_id']
+        user_not_exist_abort(user_id)
         room_abort_not_exist(room_id)
         #   abort_if_not_member(room_id, args['user_id'])
         room_members = []

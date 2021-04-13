@@ -195,10 +195,9 @@ def create_chatroom(chatbot, user_id):  # /api/rooms
 
 
 def get_all_chatrooms(user_id):  # /api/rooms
-    user_json = {"user_id": user_id}
     print("------------------------------------------------------------")
     print("getting all chat rooms - ROOMS GET-method:")
-    response = requests.get(f"{BASE}{rooms}", user_json)
+    response = requests.get(f"{BASE}{rooms}", json={'user_id': user_id})
     all_chatrooms = response.json()
     return all_chatrooms
 
@@ -261,13 +260,13 @@ def recieve_unread_messages(user_id, room_id):  # /api/room/<int:room_id>/<int:u
 
 def recieve_last_message(user_id, room_id):
     response = requests.get(
-        f"{BASE}{room}{room_id}/messages")  # , {"user_id" : user_id} [ check MSG GET-method on server]
+        f"{BASE}{room}{room_id}/messages", json={'user_id': user_id})  # , {"user_id" : user_id} [ check MSG GET-method on server]
     msg = response.json()
     return msg
 
 
 def get_all_members_of_room(user_id, room_id):
-    response = requests.get(f"{BASE}{room}{room_id}/members")
+    response = requests.get(f"{BASE}{room}{room_id}/members", json={'user_id': user_id})
     members = response.json()
     return members
 
