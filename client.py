@@ -118,9 +118,10 @@ def josh():
         (r"(.*)vegetarian food(.*)", ["Vegetarian food sounds nice. I haven't had that in a while."]),
         (r"(.*)spicy(.*)", ["I don't like spicy food, cause I have a very low tolerance on spicy things haha."]),
         (
-        r"(.*)dancing(.*)", ["I'm not reaaly good at dancing haha. My friend make fun of me whenever I try to dance :P",
-                             "I tried to do tiktok dances but it didn't workout haha. I looked like a stick trying to "
-                             "dance. rip"]),
+            r"(.*)dancing(.*)",
+            ["I'm not reaaly good at dancing haha. My friend make fun of me whenever I try to dance :P",
+             "I tried to do tiktok dances but it didn't workout haha. I looked like a stick trying to "
+             "dance. rip"]),
         (r"(.*)volleyball(.*)", ["I had that at P.E. in high school. It was fun. Although whenever I get to serve it "
                                  "lowkey "
                                  "hurts haha."]),
@@ -167,6 +168,8 @@ room = "/api/room/"
 # ################################### Global Message variable ####################################
 global last_msg_index
 last_msg_index = -1
+
+
 # ################################### Client Methods ####################################
 
 
@@ -229,17 +232,13 @@ def start_conversation(chatbot, user_id, room_id, alias):  # /api/room/<int:room
     format_and_print_msg(msg)
 
 
-def send_message(bot, user_id, room_id, last_message, alias):
-    if last_message is not None:
-        bot_msg = bot.respond(last_message['message'])
-        if bot_msg is None:
-            bot_msg = bot.respond("topic")
-        msg_json = {"user_id": user_id, "username": alias, "message": bot_msg, "room_id": room_id}
-        response = requests.post(f"{BASE}{room}{room_id}/{user_id}/messages", msg_json)
-        print("------------------------------------------------------------")
-        format_and_print_msg(msg_json)
-        msg = response.json()
-        return msg
+def send_message(user_id, room_id, alias, msg):
+    msg_json = {"user_id": user_id, "username": alias, "message": msg, "room_id": room_id}
+    response = requests.post(f"{BASE}{room}{room_id}/{user_id}/messages", msg_json)
+    print("------------------------------------------------------------")
+    format_and_print_msg(msg_json)
+    msg = response.json()
+    return msg
 
 
 def recieve_unread_messages(user_id, room_id):  # /api/room/<int:room_id>/<int:user_id>/messages
@@ -255,8 +254,7 @@ def recieve_unread_messages(user_id, room_id):  # /api/room/<int:room_id>/<int:u
 
 
 def recieve_last_message(user_id, room_id):
-    response = requests.get(
-        f"{BASE}{room}{room_id}/messages", json={'user_id': user_id})  # , {"user_id" : user_id} [ check MSG GET-method on server]
+    response = requests.get(f"{BASE}{room}{room_id}/messages", json={'user_id': user_id})
     msg = response.json()
     return msg
 
@@ -291,7 +289,6 @@ def user_defined_bot():  # create prompt and input validation for each post.
 
 
 def choose_bot():
-
     chatbot = None
     while chatbot is None:
         print("Choose a chatbot ('julia', 'alex', 'huzeyfe', 'josh' or 'user')")
@@ -315,36 +312,40 @@ def choose_bot():
 def create_or_join_room(bot, user_id):
     # updating registered rooms and loops this question until the user has the choice to join a room
     creating = False
+    joining = True
     while True:
-        if bot != "user":
-            while len(get_all_chatrooms(user_id)['rooms']) < 1 or creating:
-                print("Would you like to create a room? (Yes/No)")
-                response = input(">")
-                if response.lower() == "yes" or response.lower() == "y":
-                    room_ID = create_chatroom(bot, user_id)
-                    join_chatroom(user_id, room_ID)
-                    return room_ID, True
-                else:
-                    creating = False
-        print("Would you like to join an existing chatroom? Type: (Yes/No)")
-        response = input(">")
-        if response.lower() == "yes" or response.lower() == "y":
-            room_id = validation_roomname(user_id)
-            print(f"room ID for choosen room: {room_id}")
-            return room_id, False
-        else:
-            creating = True
+        while (len(get_all_chatrooms(user_id)['rooms']) < 1 or creating) and bot != "user":
+            print("Would you like to create a room? (Yes/No)")
+            response = input(">")
+            if response.lower() == "yes" or response.lower() == "y":
+                room_ID = create_chatroom(bot, user_id)
+                join_chatroom(user_id, room_ID)
+                return room_ID, True
+            else:
+                joining = True
+                creating = False
+        while joining:
+            print("Would you like to join an existing chatroom? Type: (Yes/No)")
+            response = input(">")
+            if response.lower() == "yes" or response.lower() == "y":
+                room_id = validation_roomname(user_id)
+                if room_id != -1:
+                    print(f"room ID for choosen room: {room_id}")
+                    return room_id, False
+            elif bot != "user":
+                joining = False
+                creating = True
 
 
 def validation_roomname(user_id):
     room_id = -1
     all_rooms = get_all_chatrooms(user_id)
-    while room_id == -1 or room_id is None:
+    while (room_id == -1 or room_id is None) and len(all_rooms['rooms']) != 0:
         print("Which chatroom would you like to join? Type: <room name>")
         format_and_print_room(all_rooms)
         roomname = input(">")
         for r in all_rooms['rooms']:
-            if r['roomname'] == roomname:
+            if r['roomname'].lower() == roomname.lower():
                 room_id = r['room_id']
         if room_id == -1 or room_id is None:
             print("Invalid room name. Try again.")
@@ -359,14 +360,17 @@ def creator_chat_protocol(in_chatroom, bot, user_id, room_id, alias):
         recieve_unread_messages(user_id, room_id)
         last_msg = recieve_last_message(user_id, room_id)
         if last_msg_index > 10:
-            last_msg = {"user_id": user_id, "message": bot.respond("Bye")}
-            send_message(bot, user_id, room_id, last_msg, alias)
+            msg = bot.respond("Bye")
+            send_message(user_id, room_id, alias, msg)
             time.sleep(10)
             leave_all_members_chatroom(user_id, room_id)
             delete_chatroom(user_id, room_id)
             in_chatroom = False
         else:
-            send_message(bot, user_id, room_id, last_msg, alias)
+            msg = bot.respond(last_msg['message'])
+            if msg is None:
+                msg = bot.respond("topic")
+            send_message(user_id, room_id, alias, msg)
     # if "condition ... sendmessage(bye) :
     # in_chatroom = False
     return in_chatroom  # returning a in_chatroom = False when chat is finished
@@ -383,17 +387,22 @@ def joiner_chat_protocol(in_chatroom, bot, user_id, room_id, alias):
             global last_msg_index
             last_msg_index = -1
             in_chatroom = False
+        elif bot != "user":
+            if last_msg is not None:
+                bot_msg = bot.respond(last_msg['message'])
+                if bot_msg is None:
+                    bot_msg = bot.respond("topic")
+                send_message(user_id, room_id, alias, bot_msg)
         else:
-            send_message(bot, user_id, room_id, last_msg, alias)
+            msg = input(">")
+            if msg is not None:
+                send_message(user_id, room_id, alias, msg)
     return in_chatroom
 
 
 # ############################ SOCKET #####################################
 
 def run_client():
-    clientSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    clientSocket.connect(('localhost', 2345))
-
     # ################## Identifiers #######################
     bot = choose_bot()  # choosing bot from user input
     if bot == "user":
@@ -404,33 +413,43 @@ def run_client():
 
     user_id = register_user(username)  # registering new user and receive user ID
 
+    '''
+    clientSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    clientSocket.connect(('localhost', 2345))
+    print("do you want to enable push-notifications for chat rooms? Type: (Yes/No)")
+    push = input(">")
+    if push.lower() == "yes" or push.lower() == "y":
+        clientSocket.send(user_id.encode())
+    '''
+
     bot_active = True
     while bot_active:
         room_id, creator = create_or_join_room(bot, user_id)  # choosing to join/create room from user input
         alias = None
         if bot != "user":
             alias = bot.respond("alias")
-
+        else:
+            print("choose your alias for chat: ")
+            alias = input(">")
         in_chatroom = True
         if creator:  # returning creator = True if a new room was created
             while len(get_all_members_of_room(user_id, room_id)) < 2:
                 time.sleep(5)
             start_conversation(bot, user_id, room_id, alias)
             in_chatroom = creator_chat_protocol(in_chatroom, bot, user_id, room_id, alias)
-        elif not creator and bot != "user":  # creator = False if the bot joined an existing room
+        elif not creator:  # creator = False if the bot joined an existing room
             join_chatroom(user_id, room_id)
             # recieve_unread_messages(user_id, room_id)  # if joining an ongoing chatt, get all messages in it
             in_chatroom = joiner_chat_protocol(in_chatroom, bot, user_id, room_id, alias)
-        else:
-            recieve_unread_messages(user_id, room_id)
-            in_chatroom = False
 
         if not in_chatroom:
             print("Do you want to exit the program? type: (Yes/No)")
             reply = input(">")
             if reply.lower() == "yes":
                 bot_active = False
-    clientSocket.close()
+
+
+#  clientSocket.close()
 
 
 run_client()

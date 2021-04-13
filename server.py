@@ -240,7 +240,7 @@ class Members(Resource):  # /api/room/<room-id>/members
 api.add_resource(Members, "/api/room/<int:room_id>/members")
 
 # ########################## SOCKETS ################################
-
+'''
 socketRunning = True
 serverSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 port = 2345
@@ -251,13 +251,17 @@ room_size = 1
 
 while socketRunning:
     connectedClients = []
-    # for x in range(room_size)
+    users = []
     client, address = serverSocket.accept()
     connectedClients.append(client)
-
-    for client in connectedClients:
-        client.close()
+    for c in connectedClients:
+        user_id = c.recv(2048).decode()
+        users.append(user_id)
+    
+    for c in connectedClients:
+        c.close()
     socketRunning = False
+    '''
 
 if __name__ == "__main__":
     app.run()  # change debug when when we're not testing anymore
