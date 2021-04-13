@@ -258,8 +258,6 @@ def recieve_last_message(user_id, room_id):
 def get_all_members_of_room(user_id, room_id):
     response = requests.get(f"{BASE}{room}{room_id}/members")
     members = response.json()
-    print("---------------members--------------")
-    print(members)
     return members
 
 
@@ -350,6 +348,7 @@ def validation_roomname(user_id):
 
 def creator_chat_protocol(in_chatroom, bot, user_id, room_id, alias):
     while in_chatroom:
+        time.sleep(10)
         recieve_unread_messages(user_id, room_id)
         last_msg = recieve_last_message(user_id, room_id)
         if last_msg_index > 10:
@@ -400,7 +399,6 @@ def run_client():
         if creator:  # returning creator = True if a new room was created
             while len(get_all_members_of_room(user_id, room_id)) < 2:
                 time.sleep(5)
-                print(len(get_all_members_of_room(user_id, room_id)))
             start_conversation(bot, user_id, room_id, alias)
             in_chatroom = creator_chat_protocol(in_chatroom, bot, user_id, room_id, alias)
         if not creator:  # creator = False if the bot joined an existing room
