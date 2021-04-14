@@ -8,10 +8,7 @@ api = Api(app)
 # USER POST parser
 users_post = reqparse.RequestParser()
 users_post.add_argument('username', type=str, required=True, help="username is required")  # username
-
-# USER GET parser
-user_id_check = reqparse.RequestParser()
-user_id_check.add_argument('user_id', type=int, required=True, help="user ID required")  # user ID
+users_post.add_argument('user_id', type=int, required=False)
 
 # up to us if it's going to be an array or database in final version (SQL-alchemy?)
 users = {"user_register": []}
@@ -20,33 +17,38 @@ user_counter = 0
 
 
 def user_not_exist_abort(user_id):  # abort if trying to use non-existing user_id
-    if 0 <= user_id < len(users['user_register']):
-        if users['user_register'][user_id] is None:
-            abort(404, message="User not found")
+    for user in users['user_register']:
+        if user['user_id'] == int(user_id):
+            return
+    abort(404, message="User not found")
 
 
 def user_does_exist_abort(user_id):  # abort if overwriting existing user_id
-    if 0 <= user_id < len(users['user_register']):
-        if users['user_register'][user_id] is not None:
+    for user in users['user_register']:
+        if user['user_id'] == user_id:
             abort(409, message="User already exists")
 
 
-class User(Resource):  # user_id is already registered
+class User(Resource):  # /api/user/<int:user_id>
 
     def get(self, user_id):  # GET a used, by id
         user_not_exist_abort(user_id)
-        return users['user_register'][user_id], 200
+        for user in users['user_register']:
+            if user['user_id'] == user_id:
+                return user, 200
 
     def delete(self, user_id):
         user_not_exist_abort(user_id)
-        del users['user_register'][user_id]
+        for i, user in enumerate(users['user_register']):
+            if user['user_id'] == user_id:
+                users['user_register'].pop(i)
         return '', 204
 
 
 class Users(Resource):
 
     def get(self):  # GET ALL users!
-        args = user_id_check.parse_args()
+        args = request.get_json()
         user_not_exist_abort(args['user_id'])
         return users  # I don't see how this method can guarantee there's a registered user calling it.
 
@@ -55,6 +57,7 @@ class Users(Resource):
         user_id = user_counter
         user_counter += 1  # incrementing global variable each time user is registered
         args = users_post.parse_args()
+        args['user_id'] = user_id
         users['user_register'].append(args)
         return user_id, 201  # returning the user ID
 
@@ -73,37 +76,35 @@ message_post.add_argument('room_id', type=int, required=True, help='You need a r
 
 class Message(Resource):
 
-    def get(self, room_id):
+    def get(self, room_id):     # get last message
         args = request.get_json()
         user_id = args['user_id']
         user_not_exist_abort(user_id)
         room_abort_not_exist(room_id)
-        all_messages = messages['messages']
         all_messages_in_room = []
-        for message in all_messages:
+        for message in messages['messages']:
             if message['room_id'] == room_id:
                 all_messages_in_room.append(message)
-        last_index = len(all_messages_in_room) - 1
-        last_message = all_messages_in_room[last_index]
+        last_message = all_messages_in_room[len(all_messages_in_room) - 1]
         return last_message, 200
 
 
 class Message2(Resource):
 
-    def get(self, room_id, user_id):
+    def get(self, room_id, user_id):    # get all messages
         room_abort_not_exist(room_id)
         user_not_exist_abort(user_id)
         message_list = []
         for m in messages['messages']:
             if m['room_id'] == room_id:
                 message_list.append(m)
-        #  abort_if_not_member(room_id, user_id)
+        abort_if_not_member(room_id, user_id)
         return message_list, 200
 
     def post(self, room_id, user_id):
         room_abort_not_exist(room_id)
         user_not_exist_abort(user_id)
-        # abort_if_not_member(room_id, user_id)
+        abort_if_not_member(room_id, user_id)
         args = message_post.parse_args()
         messages['messages'].append(args)
         return args, 200
@@ -159,10 +160,8 @@ class Room(Resource):  # "/api/room/<int:room_id>"
 class Rooms(Resource):  # "/api/rooms, { json }
 
     def get(self):  # get all chatrooms
-        args = user_id_check.parse_args()
+        args = request.get_json()
         user_not_exist_abort(args['user_id'])
-        if len(rooms) == 0:
-            room_abort_not_exist(-1)  # no existing rooms
         return rooms
 
     def post(self):  # create a new chatroom
@@ -191,23 +190,25 @@ def member_abort_does_exist(user_id):  # abort if the user is already added to t
 
 
 def abort_if_not_member(room_id, user_id):
-    if members['members']['user_id'] == user_id and members['members']['room_id'] == room_id:
-        return
+    for m in members['members']:
+        if m['user_id'] == user_id and m['room_id'] == room_id:
+            return
     return abort(404, message="You do not have access to the messages")
 
 
 member_post = reqparse.RequestParser()
 member_post.add_argument('room_id', type=int, required=True, help='Room ID is required')
 member_post.add_argument('user_id', type=int, required=True, help='User ID is required')
+# member_post.add_argument('alias', type=str, required=True, help='alias required')
 
 
 class Members(Resource):  # /api/room/<room-id>/members
-    def get(self, room_id):  # GET ALL members in the room
+    def get(self, room_id):                             # GET ALL members in the room
         args = request.get_json()
         user_id = args['user_id']
         user_not_exist_abort(user_id)
         room_abort_not_exist(room_id)
-        #   abort_if_not_member(room_id, args['user_id'])
+        abort_if_not_member(room_id, args['user_id'])
         room_members = []
         for m in members['members']:
             if m['room_id'] == room_id:
@@ -217,22 +218,21 @@ class Members(Resource):  # /api/room/<room-id>/members
     def post(self, room_id):  # ADD a user to the room
         args = member_post.parse_args()
         user_id = args.get('user_id')
-        # sjekker alt
+        user_not_exist_abort(user_id)              # validerer
         room_abort_not_exist(room_id)
-        user_not_exist_abort(user_id)
         member_abort_does_exist(user_id)
-        # lager member
-        global member_count
+        global member_count                        # lager member
         index = member_count
         member_count += 1
         members['members'].append(args)
         return index, 201
 
-    def delete(self, room_id):  # members delete tar inn
+    def delete(self, room_id):
         args = request.get_json()
         user_id = args['user_id']
         user_not_exist_abort(user_id)
         room_abort_not_exist(room_id)
+        abort_if_not_member(room_id, user_id)
         for i, m in enumerate(members['members']):
             if m.room_id == room_id:
                 members['members'].pop(i)

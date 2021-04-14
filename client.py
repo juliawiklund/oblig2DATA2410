@@ -13,7 +13,9 @@ def julia():
         (r"start conversation", ["Hi everyone, welcome to the chat", "Hey guys, nice to see you're all here"]),
         (r"topic", ["I actually need some new recipies. I've been cooking the same food for three weeks in a row.",
                     "Are any of you into sports?", "Have you guys watched any good movies during lockdown?"]),
-        (r"(.*) Hi(.*)|(.*) Hey(.*)|(.*)Welcome(.*)|(.*)Hello(.*)",["Hiii, it's great to be here, I need lunch tips!"]),
+        (
+            r"(.*) Hi(.*)|(.*) Hey(.*)|(.*)Welcome(.*)|(.*)Hello(.*)",
+            ["Hiii, it's great to be here, I need lunch tips!"]),
         (r"(.*)food(.*)", ["What do you want? I'm mostly into vegetarian food, though the latest dish I descovered is "
                            "the Persian khoresh with lamb called ghormeh sabzi!",
                            "I want junk!! steamed buns with crispy eggplant, mmm"]),
@@ -181,11 +183,19 @@ def register_user(username):  # /api/users
     return user_ID
 
 
+def get_user(user_id):
+    response = requests.get(f"{BASE}{user}{user_id}")
+    user_info = response.json()
+    username = user_info["username"]
+    return username
+
+
 def create_chatroom(chatbot, user_id):  # /api/rooms
-    create_room = {"roomname": chatbot.respond('roomname'), "creator": user_id}
+    roomname = chatbot.respond('roomname')
+    create_room = {"roomname": roomname, "creator": user_id}
     response = requests.post(f"{BASE}{rooms}", create_room)
     room_id = response.json()
-    return room_id
+    return room_id, roomname
 
 
 def get_all_chatrooms(user_id):  # /api/rooms
@@ -196,7 +206,10 @@ def get_all_chatrooms(user_id):  # /api/rooms
 
 def join_chatroom(user_id, room_id, alias):  # /api/room/<int:room_id>/users
     response = requests.post(f"{BASE}{room}{room_id}/members", {'room_id': room_id, 'user_id': user_id})
-    print(f"{alias} has joined the chat {response}")
+    if str(response) == "<Response [201]>":
+        print(f"{alias} has joined the chat")
+    else:
+        print(f"Server failed, {alias} couldn't join the chat {response}")
     print("-------------------------------------------------------------------------------------")
 
 
@@ -226,7 +239,6 @@ def start_conversation(chatbot, user_id, room_id, alias):  # /api/room/<int:room
 def send_message(user_id, room_id, alias, msg):
     msg_json = {"user_id": user_id, "username": alias, "message": msg, "room_id": room_id}
     response = requests.post(f"{BASE}{room}{room_id}/{user_id}/messages", msg_json)
-    format_and_print_msg(msg_json)
     msg = response.json()
     return msg
 
@@ -263,6 +275,7 @@ def format_and_print_room(chatrooms):
     print("available rooms are: ")
     for r in chatrooms['rooms']:
         print(r['roomname'])
+    print("-------------------------------------------------------------------------------------")
 
 
 def leave_all_members_chatroom(user_id, room_id):  # /api/room/<int:room_id>/<int:user_id>
@@ -296,38 +309,64 @@ def choose_bot():
     return chatbot
 
 
+def login_or_register(bot):
+    print("are you a registered user?")
+    registered = input(">")
+    user_id = None
+    if registered.lower() == "yes" or registered.lower() == "y":
+        while user_id is None or not user_id.isnumeric() or int(user_id) < 0:
+            print("Logg in with your user ID:")
+            user_id = input(">")
+        username = get_user(user_id)
+        print("-------------------------------------------------------------------------------------")
+        print(f"{username} is logged in")
+    elif registered.lower() == "no" or registered.lower() == "n":
+        if bot == "user":
+            print("Choose your username:")
+            username = input(">")
+        else:
+            username = bot.respond("username")
+        user_id = register_user(username)
+        print("-------------------------------------------------------------------------------------")
+        print(f"user registered with user ID:{user_id}")
+    print("-------------------------------------------------------------------------------------")
+    return user_id
+
+
 def create_or_join_room(bot, user_id, alias):
-    # updating registered rooms and loops this question until the user has the choice to join a room
     creating = False
     joining = True
+    # updating registered rooms and loops this question until there's an existing room for the bot to join
     while True:
         while (len(get_all_chatrooms(user_id)['rooms']) < 1 or creating) and bot != "user":
             print("Would you like to create a room? (Yes/No)")
             response = input(">")
             if response.lower() == "yes" or response.lower() == "y":
-                room_ID = create_chatroom(bot, user_id)
+                room_ID, roomname = create_chatroom(bot, user_id)
+                print(f"--------------------------------Welcome to {roomname}--------------------------------")
                 join_chatroom(user_id, room_ID, alias)
                 return room_ID, True
             else:
                 joining = True
                 creating = False
-        while joining:
+        while joining:  # users will automatically be offered to join a room.
             print("Would you like to join an existing chatroom? Type: (Yes/No)")
-            response = input(">")
-            if response.lower() == "yes" or response.lower() == "y":
+            reply = input(">")
+            if reply.lower() == "yes" or reply.lower() == "y":
                 room_id = validation_roomname(user_id)
                 if room_id != -1:
-                    print(f"room ID for choosen room: {room_id}")
                     return room_id, False
             elif bot != "user":
                 joining = False
                 creating = True
+            else:
+                return -1, False
 
 
 def validation_roomname(user_id):
     room_id = -1
     all_rooms = get_all_chatrooms(user_id)
-    while (room_id == -1 or room_id is None) and len(all_rooms['rooms']) != 0:
+    while room_id == -1 or room_id is None:
         print("Which chatroom would you like to join? Type: <room name>")
         format_and_print_room(all_rooms)
         roomname = input(">")
@@ -355,11 +394,13 @@ def creator_chat_protocol(in_chatroom, bot, user_id, room_id, alias):
             delete_chatroom(user_id, room_id)
             in_chatroom = False
         else:
+            time.sleep(10)
             msg = bot.respond(last_msg['message'])
             if msg is None:
                 msg = bot.respond("topic")
-            send_message(user_id, room_id, alias, msg)
-    return in_chatroom  # returning a in_chatroom = False when chat is finished
+            msg = send_message(user_id, room_id, alias, msg)
+            format_and_print_msg(msg)
+    print("-------------------------------------------------------------------------------------")
 
 
 # ############################ Joiner of chatroom chat-Protocol #####################################
@@ -376,31 +417,25 @@ def joiner_chat_protocol(in_chatroom, bot, user_id, room_id, alias):
         elif bot != "user":
             if last_msg is not None:
                 bot_msg = bot.respond(last_msg['message'])
-                if bot_msg is None:
+                if bot_msg is None:  # if the bot doesn't have an output we'll make it switch topic of discussion
                     bot_msg = bot.respond("topic")
-                send_message(user_id, room_id, alias, bot_msg)
+                msg = send_message(user_id, room_id, alias, bot_msg)
+                format_and_print_msg(msg)
         else:
-            msg = input(">")
+            msg = input(f"{alias} says: ")
+            print("")
             if msg is not None:
                 send_message(user_id, room_id, alias, msg)
     print("-------------------------------------------------------------------------------------")
-    return in_chatroom
 
 
-# ############################ SOCKET #####################################
+# ############################ PROGRAM #####################################
 
 def run_client():
-    # ################## Identifiers #######################
     bot = choose_bot()  # choosing bot from user input
-    if bot == "user":
-        print("Type in your username:")
-        username = input(">")
-    else:
-        username = bot.respond("username")
-
-    user_id = register_user(username)  # registering new user and receive user ID
-
-    '''
+    user_id = login_or_register(bot)  # registering new user and receive user ID
+    # ambitions on solving push-notifications:
+    ''' # 
     clientSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     clientSocket.connect(('localhost', 2345))
     print("do you want to enable push-notifications for chat rooms? Type: (Yes/No)")
@@ -411,30 +446,27 @@ def run_client():
 
     bot_active = True
     while bot_active:
-        alias = None
         if bot != "user":
             alias = bot.respond("alias")
         else:
             print("choose your alias for chat: ")
             alias = input(">")
         room_id, creator = create_or_join_room(bot, user_id, alias)  # choosing to join/create room from user input
-
-        in_chatroom = True
-        if creator:  # returning creator = True if a new room was created
+        if creator and room_id != -1:  # returning creator = True if a new room was created
             while len(get_all_members_of_room(user_id, room_id)) < 2:
                 time.sleep(5)
-            print("-------------------------------------------------------------------------------------")
             start_conversation(bot, user_id, room_id, alias)
-            in_chatroom = creator_chat_protocol(in_chatroom, bot, user_id, room_id, alias)
-        elif not creator:  # creator = False if the bot joined an existing room
+            creator_chat_protocol(bot_active, bot, user_id, room_id, alias)
+        elif not creator and room_id != -1:  # creator = False if the bot joined an existing room
             join_chatroom(user_id, room_id, alias)
-            in_chatroom = joiner_chat_protocol(in_chatroom, bot, user_id, room_id, alias)
+            joiner_chat_protocol(bot_active, bot, user_id, room_id, alias)
 
-        if not in_chatroom:
-            print("Do you want to exit the program? type: (Yes/No)")
-            reply = input(">")
-            if reply.lower() == "yes" or reply.lower() == "y":
-                bot_active = False
+        print("Do you want to exit the program? type: (Yes/No)")
+        reply = input(">")
+        if reply.lower() == "yes" or reply.lower() == "y":
+            bot_active = False
+        else:
+            bot_active = True
 
 
 run_client()
