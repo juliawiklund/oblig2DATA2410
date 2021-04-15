@@ -57,6 +57,28 @@ def alex():
         (r"bye", ["bye"]),
         (r"topic", ["Sooo what kind of food do you guys like?", "Well, i guess we could talk about sports",
                     "Do you guys have any favorite films", "What kind of movies or series do you guys watch?"]),
+        (r"(.*)How are you?(.*)", ["I'm good thanks for asking", "Ehh im okey, but at least now i can talk to people"]),
+        (r"(.*)vegetarian food(.*)", ["Ouu I at least drink Oatly every day, but that's because im lactose intolerant",
+                                      "I love vegan food, there are so many good recipies out there"]),
+        (r"(.*) art (.*)", ["Sameee, i like watercoloring, acrylics are not my thing", "I used to draw alot in middle "
+                                                                                       "school"]),
+        (r"(.*)what games do you play?(.*)", ["I play valorant hahah even though i always bottom frag",
+                                              "I like minecraft haha, like what am I? A 12 y/o",
+                                              "Genshin impact is the shittt, even though everyone else stopped playing"
+                                              " it a long time ago"]),
+        (r"(.*)Matrix(.*)", ["Samee, i liked the first movie so much as a kid, then they just couldn't follow that. "
+                             "They sat themselves up for failure"]),
+        (r"(.*)hbo(.*)", ["I dont have hbo anymore, I only used to hijack someone elses account, but they stopped "
+                          "their subscription.", "Ohh yeahh no i dont have hbo, im a poor student, I use illegal"
+                                                 " websites"]),
+        (r"(.*)chicken(.*)", ["DUDEEE now im hungry, why did you have to tempt us like that", "Oufff now im suuuper "
+                                                                                              "hungry"]),
+        (r"(.*)What kind are you watching now?(.*)", ["I really liked bojack horseman, even though it looks like a kids"
+                                                      " show it definitely isn't", "Ehmmm idk i like promised neverland"
+                                                                                   ", its not on Netflix tho"]),
+        (r"(.*)therapy(.*)", ["Oh you should go see my therapist, she's amaaaazing", "I stopped going to the therapist "
+                                                                                     "cuz he was hella mean"]),
+        (r"(.*)basketball team when I was 13(.*)", ["Oh wow i didnt know that", "Ehmm okey? Cool i guess"]),
         (r"(.*)food(.*)", ["I looooove spicy food hihi", "I could eat every day, oh wait, i already do hahah",
                            "I love to make food, i also like baking, but i dont like pastries so not a good combo"]),
         (r"(.*)sport(.*)|(.*)sports(.*)", ["Ehheh I dont really watch or play any sports anymore",
@@ -261,7 +283,7 @@ def recieve_unread_messages(user_id, room_id):  # /api/room/<int:room_id>/<int:u
 def recieve_last_message(user_id, room_id):
     response = requests.get(f"{BASE}{room}{room_id}/messages", json={'user_id': user_id})
     if str(response) == "<Response [404]>":
-        return None
+        return {"message": None}
     msg = response.json()
     return msg
 
@@ -327,8 +349,10 @@ def login_or_register(bot):
         print(f"{username} is logged in")
     else:
         if bot == "user":
-            print("Choose your username:")
-            username = input(">")
+            username = None
+            while username is None or username == "":
+                print("Choose your username:")
+                username = input(">")
         else:
             username = bot.respond("username")
         user_id = register_user(username)
@@ -395,13 +419,14 @@ def creator_chat_protocol(in_chatroom, bot, user_id, room_id, alias):
         if last_msg_index > 10:
             msg = bot.respond("Bye")
             send_message(user_id, room_id, alias, msg)
-            time.sleep(10)
+            byemsg = {"username": alias, "message": msg}
+            format_and_print_msg(byemsg)
             print("-------------------------------------------------------------------------------------")
+            time.sleep(10)
             leave_all_members_chatroom(user_id, room_id)  # the creator throws out the members
             delete_chatroom(user_id, room_id)
             in_chatroom = False
         else:
-            time.sleep(10)
             msg = bot.respond(last_msg['message'])
             if msg is None:
                 msg = bot.respond("topic")
@@ -419,7 +444,7 @@ def joiner_chat_protocol(in_chatroom, bot, user_id, room_id, alias):
         if not message_exist:
             in_chatroom = False
         last_msg = recieve_last_message(user_id, room_id)
-        if last_msg['message'] == "bye" or last_msg is None:
+        if last_msg['message'] == "bye" or last_msg['message'] is None:
             global last_msg_index
             last_msg_index = -1
             in_chatroom = False
@@ -457,8 +482,10 @@ def run_client():
         if bot != "user":
             alias = bot.respond("alias")
         else:
-            print("choose your alias for chat: ")
-            alias = input(">")
+            alias = None
+            while alias is None or alias == "":
+                print("choose your alias for chat: ")
+                alias = input(">")
         room_id, creator = create_or_join_room(bot, user_id, alias)  # choosing to join/create room from user input
         if creator and room_id != -1:  # returning creator = True if a new room was created
             while len(get_all_members_of_room(user_id, room_id)) < 2:

@@ -76,14 +76,14 @@ message_post.add_argument('room_id', type=int, required=True, help='You need a r
 
 class Message(Resource):
 
-    def get(self, room_id):     # get last message
+    def get(self, room_id):  # get last message
         args = request.get_json()
         user_id = args['user_id']
         user_not_exist_abort(user_id)
         room_abort_not_exist(room_id)
         all_messages_in_room = []
         if len(messages['messages']) == 0:
-            return "no messages", 404
+            return "", 404
         for message in messages['messages']:
             if message['room_id'] == room_id:
                 all_messages_in_room.append(message)
@@ -91,10 +91,9 @@ class Message(Resource):
         return last_message, 200
 
 
-
 class Messages(Resource):
 
-    def get(self, room_id, user_id):    # get all messages
+    def get(self, room_id, user_id):  # get all messages
         room_abort_not_exist(room_id)
         user_not_exist_abort(user_id)
         abort_if_not_member(room_id, user_id)
@@ -204,11 +203,13 @@ def abort_if_not_member(room_id, user_id):
 member_post = reqparse.RequestParser()
 member_post.add_argument('room_id', type=int, required=True, help='Room ID is required')
 member_post.add_argument('user_id', type=int, required=True, help='User ID is required')
+
+
 # member_post.add_argument('alias', type=str, required=True, help='alias required')
 
 
 class Members(Resource):  # /api/room/<room-id>/members
-    def get(self, room_id):                             # GET ALL members in the room
+    def get(self, room_id):  # GET ALL members in the room
         args = request.get_json()
         user_id = args['user_id']
         user_not_exist_abort(user_id)
@@ -223,10 +224,10 @@ class Members(Resource):  # /api/room/<room-id>/members
     def post(self, room_id):  # ADD a user to the room
         args = member_post.parse_args()
         user_id = args.get('user_id')
-        user_not_exist_abort(user_id)              # validerer
+        user_not_exist_abort(user_id)  # validerer
         room_abort_not_exist(room_id)
         member_abort_does_exist(user_id)
-        global member_count                        # lager member
+        global member_count  # lager member
         index = member_count
         member_count += 1
         members['members'].append(args)
