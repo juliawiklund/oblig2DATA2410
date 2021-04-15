@@ -82,6 +82,8 @@ class Message(Resource):
         user_not_exist_abort(user_id)
         room_abort_not_exist(room_id)
         all_messages_in_room = []
+        if len(messages['messages']) == 0:
+            return "no messages", 404
         for message in messages['messages']:
             if message['room_id'] == room_id:
                 all_messages_in_room.append(message)
@@ -89,16 +91,19 @@ class Message(Resource):
         return last_message, 200
 
 
-class Message2(Resource):
+
+class Messages(Resource):
 
     def get(self, room_id, user_id):    # get all messages
         room_abort_not_exist(room_id)
         user_not_exist_abort(user_id)
+        abort_if_not_member(room_id, user_id)
         message_list = []
         for m in messages['messages']:
             if m['room_id'] == room_id:
                 message_list.append(m)
-        abort_if_not_member(room_id, user_id)
+        if len(message_list) == 0:
+            return "no messages", 404
         return message_list, 200
 
     def post(self, room_id, user_id):
@@ -111,7 +116,7 @@ class Message2(Resource):
 
 
 api.add_resource(Message, "/api/room/<int:room_id>/messages")
-api.add_resource(Message2, "/api/room/<int:room_id>/<int:user_id>/messages")
+api.add_resource(Messages, "/api/room/<int:room_id>/<int:user_id>/messages")
 
 # ####################### ROOMS ################################
 
