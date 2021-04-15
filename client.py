@@ -245,6 +245,8 @@ def send_message(user_id, room_id, alias, msg):
 
 def recieve_unread_messages(user_id, room_id):  # /api/room/<int:room_id>/<int:user_id>/messages
     response = requests.get(f"{BASE}{room}{room_id}/{user_id}/messages")
+    if str(response) == "<Response [404]>":
+        return False
     messages = response.json()
     i = 0
     for msg in messages:
@@ -253,10 +255,13 @@ def recieve_unread_messages(user_id, room_id):  # /api/room/<int:room_id>/<int:u
             format_and_print_msg(msg)  # printing new messages from other users if index is bigger than last time
         i = i + 1
     last_msg_index = i
+    return True
 
 
 def recieve_last_message(user_id, room_id):
     response = requests.get(f"{BASE}{room}{room_id}/messages", json={'user_id': user_id})
+    if str(response) == "<Response [404]>":
+        return None
     msg = response.json()
     return msg
 
@@ -320,7 +325,7 @@ def login_or_register(bot):
         username = get_user(user_id)
         print("-------------------------------------------------------------------------------------")
         print(f"{username} is logged in")
-    elif registered.lower() == "no" or registered.lower() == "n":
+    else:
         if bot == "user":
             print("Choose your username:")
             username = input(">")
@@ -366,7 +371,7 @@ def create_or_join_room(bot, user_id, alias):
 def validation_roomname(user_id):
     room_id = -1
     all_rooms = get_all_chatrooms(user_id)
-    while room_id == -1 or room_id is None:
+    while room_id == -1:
         print("Which chatroom would you like to join? Type: <room name>")
         format_and_print_room(all_rooms)
         roomname = input(">")
@@ -383,14 +388,16 @@ def validation_roomname(user_id):
 def creator_chat_protocol(in_chatroom, bot, user_id, room_id, alias):
     while in_chatroom:
         time.sleep(10)
-        recieve_unread_messages(user_id, room_id)
+        messages_exist = recieve_unread_messages(user_id, room_id)
+        if not messages_exist:
+            in_chatroom = False
         last_msg = recieve_last_message(user_id, room_id)
         if last_msg_index > 10:
             msg = bot.respond("Bye")
             send_message(user_id, room_id, alias, msg)
             time.sleep(10)
             print("-------------------------------------------------------------------------------------")
-            leave_all_members_chatroom(user_id, room_id)
+            leave_all_members_chatroom(user_id, room_id)  # the creator throws out the members
             delete_chatroom(user_id, room_id)
             in_chatroom = False
         else:
@@ -408,19 +415,20 @@ def creator_chat_protocol(in_chatroom, bot, user_id, room_id, alias):
 def joiner_chat_protocol(in_chatroom, bot, user_id, room_id, alias):
     while in_chatroom:
         time.sleep(10)
-        recieve_unread_messages(user_id, room_id)
+        message_exist = recieve_unread_messages(user_id, room_id)
+        if not message_exist:
+            in_chatroom = False
         last_msg = recieve_last_message(user_id, room_id)
-        if last_msg['message'] == "bye":
+        if last_msg['message'] == "bye" or last_msg is None:
             global last_msg_index
             last_msg_index = -1
             in_chatroom = False
         elif bot != "user":
-            if last_msg is not None:
-                bot_msg = bot.respond(last_msg['message'])
-                if bot_msg is None:  # if the bot doesn't have an output we'll make it switch topic of discussion
-                    bot_msg = bot.respond("topic")
-                msg = send_message(user_id, room_id, alias, bot_msg)
-                format_and_print_msg(msg)
+            bot_msg = bot.respond(last_msg['message'])
+            if bot_msg is None:  # if the bot doesn't have an output we'll make it switch topic of discussion
+                bot_msg = bot.respond("topic")
+            msg = send_message(user_id, room_id, alias, bot_msg)
+            format_and_print_msg(msg)
         else:
             msg = input(f"{alias} says: ")
             print("")
