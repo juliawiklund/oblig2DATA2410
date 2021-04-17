@@ -10,7 +10,7 @@ def julia():
         (r"username", ["julia"]),
         (r"alias", ["jullz", "wiklund", "j****w"]),
         (r"roomname", ["olafiaklinikken", "snacks", "Hogwarts"]),
-        (r"start conversation", ["Hi everyone, welcome to the chat", "Hey guys, nice to see you're all here"]),
+        (r"start conversation", ["Hi everyone, welcome to the chat", "Hey guys, nice to see you're all here", "Hello peeepz!"]),
         (r"topic", ["I actually need some new recipies. I've been cooking the same food for three weeks in a row.",
                     "Are any of you into sports?", "Have you guys watched any good movies during lockdown?"]),
         (
@@ -21,6 +21,7 @@ def julia():
                            "I want junk!! steamed buns with crispy eggplant, mmm"]),
         (r"(.*)cook(.*)", ["I make a killing mayonnaise, but can't cook any apart from that...",
                            "Hmm, I can actually cook summer rolls, almost forgot"]),
+        (r"(.*)hungry(.*)", ["order take-away?", "Let's go to Bislett Kebab<3"]),
         (r"(.*)spicy(.*)", ["yeah, spicy food is really nice."]),
         (r"(.*)pastry(.*)|(.*)pastries(.*)", ["ah, do you bake? Can you make mochi"]),
         (r"bye", ["bye"]),
@@ -31,14 +32,24 @@ def julia():
                             "never prioritize playing anymore, now it's just random the few times I get to play.",
                             "I'm into dancing, guess it's not a sport really but Chicago-footwork jams and battles"
                             "looks sporty to me, haha.", "does anyone play volleyball?"]),
-        (r"(.*)game(.*)", ["what games do you play?"]),
+        (r"(.*)game(.*)", ["what games do you play?", "like tetris?"]),
+        (r"(.*)valorant(.*)|(.*)minecraft(.*)|(.*)Genshin(.*)", ["Hmm, I never played %1"]),
         (r"(.*)film(.*)|(.*)movie(.*)", ["I've been re-watching Matrix every break since first year of uni, the first "
                                          "one is simply great. It's therefore a freaking mystery how the other two "
                                          "got so incredibly bad??",
-                                         "Have anyone watched Brave New World? The tv-series on HBO, based on Aldous "
+
+                                         ]),
+        (r"(.*)series(.*)|(.*)tv(.*)", ["Have anyone watched Brave New World? The tv-series on HBO, based on Aldous "
                                          "Huxley sci-fi novel from 1932. I'm not sure if I should get HBO "
-                                         "subscription or not"]),
-        (r"(.*)horror(.*)", ["I'm not into horror but anything else"])
+                                         "subscription or not",
+                                        "Devs is the best series I've seen in a while! I really recommend if you're "
+                                        "into sci-fi.",
+                                        "Rick and Morty!"]),
+        (r"(.*)horror(.*)", ["I'm not into horror but anything else."]),
+        (r"(.*)bojack horseman(.*)", ["Ah, is that the animated one?"]),
+        (r"(.*)eternal sunshine(.*)", ["Agree, that's a good one. Jim Carrey delivers the best in his serious roles!"]),
+        (r"(.*)studio ghibli(.*)", ["Same here! I saw Totoro the first time when I was like four years old.",
+                                    "Totally agree, Spirited Away is probably my favourite."])
     ]
     chatbot = Chat(pairs, reflections)
     return chatbot
@@ -54,7 +65,8 @@ def alex():
                                  "Hello and welcome to the gc :) hope we'll have a nice convo"]),
         (r"(.*) Hi(.*)|(.*) Hey(.*)|(.*) Welcome(.*)|(.*) Hello(.*)", ["Helluuu, happy to be here",
                                                                        "Ouuu fun a new chatroom"]),
-        (r"bye", ["bye"]),
+        (r"(.*)sad(.*)", ["Aah, did something happen?"]),
+        (r"bye", [""]),
         (r"topic", ["Sooo what kind of food do you guys like?", "Well, i guess we could talk about sports",
                     "Do you guys have any favorite films", "What kind of movies or series do you guys watch?"]),
         (r"(.*)How are you?(.*)", ["I'm good thanks for asking", "Ehh im okey, but at least now i can talk to people"]),
