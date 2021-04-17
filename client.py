@@ -126,7 +126,7 @@ def huzeyfe():
         (r"(.*)sport(.*)|(.*)sports(.*)", ["Bro I watch sports all the time!",
                                            "Sports are perhaps some of the most boring things you can do",
                                            "Bro I love sport, especially boxing",
-                                           "Hahaha sport? I can 't even get out of bed, you're funny"]),
+                                           "Hahaha sport? I can't even get out of bed, you're funny"]),
         (r"(.*)movies(.*)|(.*)movie(.*)", ["I mean everyone should have at least one movie night a week",
                                            "Yeeah I am obsessed with star wars, i know absolutely everything about it:)",
                                            "To be honest I do not like movies, I prefer series",
