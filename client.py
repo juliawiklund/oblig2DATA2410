@@ -427,7 +427,7 @@ def creator_chat_protocol(in_chatroom, bot, user_id, room_id, alias):
         if not messages_exist:
             in_chatroom = False
         last_msg = recieve_last_message(user_id, room_id)
-        if last_msg_index > 30:
+        if last_msg_index > 25:
             msg = bot.respond("Bye")
             send_message(user_id, room_id, alias, msg)
             byemsg = {"username": alias, "message": msg}
